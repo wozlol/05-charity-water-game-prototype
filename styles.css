@@ -21,14 +21,72 @@ Secondary Colors:
 body {
     font-family: Arial, Helvetica, sans-serif;
     text-align: center;
-    background-color: #FFC907;
+    background: linear-gradient(180deg, #2E9DF7 0%, #8BD1CB 60%, #eaf8fb 100%);
+    background-attachment: fixed;
     margin: 0;
     padding: 20px 10px 40px;
     color: #1a1a1a;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Drifting clouds sit behind every other element */
+.sky-clouds {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.sky-cloud {
+    position: absolute;
+    fill: rgba(255, 255, 255, 0.75);
+}
+
+.sky-cloud-one { width: 420px; height: 240px; top: 2%; left: 0; opacity: 0; animation: cloudDrift1 38s linear 0s infinite; }
+.sky-cloud-two { width: 320px; height: 184px; top: 60%; left: 0; fill: rgba(255, 255, 255, 0.55); opacity: 0; animation: cloudDrift2 34s linear -12s infinite; }
+.sky-cloud-three { width: 260px; height: 150px; top: 32%; left: 0; fill: rgba(255, 255, 255, 0.45); opacity: 0; animation: cloudDrift3 30s linear -20s infinite; }
+
+@keyframes cloudDrift1 {
+    0%   { transform: translate3d(115vw, 0, 0); opacity: 0; }
+    8%   { opacity: 1; }
+    75%  { opacity: 1; }
+    100% { transform: translate3d(-45vw, 0, 0); opacity: 0; }
+}
+
+@keyframes cloudDrift2 {
+    0%   { transform: translate3d(108vw, 0, 0); opacity: 0; }
+    6%   { opacity: 1; }
+    78%  { opacity: 1; }
+    100% { transform: translate3d(-40vw, 0, 0); opacity: 0; }
+}
+
+@keyframes cloudDrift3 {
+    0%   { transform: translate3d(105vw, 0, 0); opacity: 0; }
+    10%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translate3d(-35vw, 0, 0); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sky-cloud { animation: none; opacity: 0.6; }
+}
+
+/* Everything else sits above the sky and clouds */
+header, #stats-bar, #game-area, #controls, #confetti-layer {
+    position: relative;
+    z-index: 1;
 }
 
 header {
     margin-bottom: 15px;
+    background-color: rgba(255, 255, 255, 0.92);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 10px;
+    padding: 14px 10px 10px;
 }
 
 #logo {
@@ -117,7 +175,7 @@ h1 {
     top: 0;
     width: 28px;
     height: 28px;
-    border-radius: 50% 50% 50% 0;
+    border-radius: 50% 50% 0 50%;
     transform: rotate(45deg);
 }
 
@@ -206,6 +264,7 @@ button:hover {
     height: 100%;
     pointer-events: none;
     overflow: hidden;
+    z-index: 5;
 }
 
 .confetti-piece {
