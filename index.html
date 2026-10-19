@@ -3,11 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charity Water Game</title>
+    <title>Bucket Master | charity: water Game Prototype</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Welcome to the Charity Water Game Prototype</h1>
+
+    <header>
+        <img src="img/cw_logo_horizontal.png" alt="charity: water logo" id="logo">
+        <h1>Bucket Master</h1>
+        <p id="tagline">Catch clean water. Dodge the dirty stuff.</p>
+    </header>
+
+    <!-- Stats bar: shows score, lives, and level while playing -->
+    <section id="stats-bar">
+        <div class="stat">
+            <span class="stat-label">Score</span>
+            <span id="score-display">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Lives</span>
+            <span id="lives-display">💧💧💧</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Level</span>
+            <span id="level-display">1</span>
+        </div>
+    </section>
+
+    <!-- The game area is where the bucket and falling drops live -->
+    <main id="game-area">
+
+        <div id="bucket"></div>
+
+        <!-- Shown before the game starts -->
+        <div id="start-screen" class="overlay">
+            <h2>Ready to catch some water?</h2>
+            <p>Move the bucket with the arrow keys, or drag it on a touch screen.</p>
+            <p>Catch blue drops for points. Avoid brown drops and oil slicks, they cost you a life.</p>
+            <button id="start-btn">Start Game</button>
+        </div>
+
+        <!-- Shown when lives run out -->
+        <div id="game-over-screen" class="overlay hidden">
+            <h2>Game Over</h2>
+            <p id="final-score"></p>
+            <p id="collection-rate"></p>
+            <p id="high-score-message"></p>
+            <button id="play-again-btn">Play Again</button>
+        </div>
+
+    </main>
+
+    <!-- On-screen controls, useful on both desktop and mobile -->
+    <section id="controls">
+        <button id="left-btn" aria-label="Move bucket left">◀</button>
+        <button id="reset-btn">Reset</button>
+        <button id="right-btn" aria-label="Move bucket right">▶</button>
+    </section>
+
+    <!-- Confetti pieces get added here by script.js during celebrations -->
+    <div id="confetti-layer"></div>
+
     <script src="script.js"></script>
 </body>
 </html>
