@@ -22,12 +22,13 @@
     </div>
 
     <header>
+        <button id="sound-toggle" aria-label="Mute sound">🔊</button>
         <img src="img/cw_logo_horizontal.png" alt="charity: water logo" id="logo">
         <h1>Bucket Master</h1>
-        <p id="tagline">Catch clean water. Dodge the dirty stuff.</p>
+        <p id="tagline">Fill your bucket with clean water. Don't let it get contaminated.</p>
     </header>
 
-    <!-- Stats bar: shows score, lives, and level while playing -->
+    <!-- Stats bar: shows score, lives, buckets filled, and level while playing -->
     <section id="stats-bar">
         <div class="stat">
             <span class="stat-label">Score</span>
@@ -38,21 +39,39 @@
             <span id="lives-display">💧💧💧</span>
         </div>
         <div class="stat">
+            <span class="stat-label">Buckets</span>
+            <span id="buckets-display">0</span>
+        </div>
+        <div class="stat">
             <span class="stat-label">Level</span>
             <span id="level-display">1</span>
         </div>
     </section>
 
-    <!-- The game area is where the bucket and falling drops live -->
+    <!-- The game area is where the bucket, filter, and falling drops live -->
     <main id="game-area">
 
-        <div id="bucket"></div>
+        <!-- Two stacked river photos so we can crossfade between them -->
+        <div class="river-bg active" id="river-bg-a"></div>
+        <div class="river-bg" id="river-bg-b"></div>
+
+        <!-- The water filter: push it around with the bucket to clean dirty drops -->
+        <div id="filter"></div>
+
+        <!-- The bucket: a container so it can hold a rising water-fill indicator -->
+        <div id="bucket">
+            <div class="bucket-handle"></div>
+            <div class="bucket-body">
+                <div id="bucket-fill"></div>
+            </div>
+        </div>
 
         <!-- Shown before the game starts -->
         <div id="start-screen" class="overlay">
-            <h2>Ready to catch some water?</h2>
-            <p>Move the bucket with the arrow keys, or drag it on a touch screen.</p>
-            <p>Catch blue drops for points. Avoid brown drops and oil slicks, they cost you a life.</p>
+            <h2>Ready to fill some buckets?</h2>
+            <p>Move the bucket with your mouse, or by dragging on a touch screen. It can shift up and down too, not just side to side.</p>
+            <p>Catch blue drops to fill your bucket. Fill it all the way and it counts, then a new one starts. Catch a brown drop or an oil slick and your bucket gets contaminated, costing you the bucket and a life.</p>
+            <p>Bump the mesh filter with your bucket to shove it around. Push it in front of brown drops to clean them before they reach you.</p>
             <button id="start-btn">Start Game</button>
         </div>
 
@@ -60,18 +79,24 @@
         <div id="game-over-screen" class="overlay hidden">
             <h2>Game Over</h2>
             <p id="final-score"></p>
+            <p id="final-buckets"></p>
             <p id="collection-rate"></p>
             <p id="high-score-message"></p>
             <button id="play-again-btn">Play Again</button>
         </div>
 
+        <!-- Shown while the game is paused -->
+        <div id="pause-screen" class="overlay hidden">
+            <h2>Paused</h2>
+            <button id="resume-btn">Resume</button>
+        </div>
+
     </main>
 
-    <!-- On-screen controls, useful on both desktop and mobile -->
+    <!-- On-screen controls: movement is mouse or touch drag only -->
     <section id="controls">
-        <button id="left-btn" aria-label="Move bucket left">◀</button>
+        <button id="pause-btn">Pause</button>
         <button id="reset-btn">Reset</button>
-        <button id="right-btn" aria-label="Move bucket right">▶</button>
     </section>
 
     <!-- Confetti pieces get added here by script.js during celebrations -->
