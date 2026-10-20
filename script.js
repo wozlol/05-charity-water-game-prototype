@@ -38,7 +38,10 @@ const FILL_STEP = 10;
 
 // Obstacle drops get tagged with one of these for visual variety. An
 // empty string keeps the default oil-slick look.
-const obstacleVariants = ['', 'obstacle-can', 'obstacle-bottle', 'obstacle-tire', 'obstacle-banana'];
+const obstacleVariants = [
+    '', 'obstacle-can', 'obstacle-bottle', 'obstacle-tire', 'obstacle-banana',
+    'obstacle-paperball', 'obstacle-flipflop', 'obstacle-plank', 'obstacle-screw', 'obstacle-juicebox'
+];
 
 // A rotating gallery of river photos, one shown at a time behind the game
 const riverBackgrounds = [
