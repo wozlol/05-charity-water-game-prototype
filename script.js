@@ -92,6 +92,13 @@ let lastBucketY = 0;
 let bucketVX = 0;
 let bucketVY = 0;
 
+// Spring-damped pendulum tilt, driven by side-to-side speed, plus a
+// shake offset for the jam effect. Both ride on #bucket's own transform.
+let bucketTilt = 0;
+let bucketTiltVelocity = 0;
+let bucketShakeUntil = 0;
+let lastSloshSplashTime = 0;
+
 // Filter position and velocity, for the physics simulation
 let filterX = 0;
 let filterY = 0;
@@ -658,11 +665,62 @@ function updateBucketVelocity() {
     lastBucketY = currentY;
 }
 
+// Swings the bucket like a pendulum hung from its handle: a spring pulls
+// it toward a target tilt based on how fast it's moving sideways, with
+// damping so it settles instead of oscillating forever. A jam shake rides
+// along on the same transform. Skipped during exit/enter choreography so
+// it doesn't fight those CSS animations.
+function updateBucketSwing() {
+    if (bucketTransitioning) {
+        return;
+    }
+
+    const targetTilt = Math.max(-18, Math.min(18, -bucketVX * 2.2));
+    const tiltSpring = (targetTilt - bucketTilt) * 0.18;
+    bucketTiltVelocity = (bucketTiltVelocity + tiltSpring) * 0.78;
+    bucketTilt = bucketTilt + bucketTiltVelocity;
+
+    let shakeX = 0;
+    if (Date.now() < bucketShakeUntil) {
+        shakeX = Math.sin(Date.now() * 0.08) * 4;
+    }
+
+    bucket.style.transform = `translateX(${shakeX.toFixed(2)}px) rotate(${bucketTilt.toFixed(2)}deg)`;
+}
+
+// Fast side-to-side movement sloshes a bit of water out, scaled to speed
+function maybeSloshSplash() {
+    if (bucketTransitioning || bucketFill <= 0) {
+        return;
+    }
+
+    const speed = Math.abs(bucketVX);
+    if (speed < 3) {
+        return;
+    }
+
+    const now = Date.now();
+    if (now - lastSloshSplashTime < 120) {
+        return;
+    }
+    lastSloshSplashTime = now;
+
+    const count = Math.min(4, Math.floor(speed / 2));
+    if (count <= 0) {
+        return;
+    }
+
+    const bucketCenterX = bucket.offsetLeft + (bucket.offsetWidth / 2);
+    const bucketTopY = bucket.offsetTop + 6;
+    launchSplash(bucketCenterX, bucketTopY, 'clean-splash', count);
+}
+
 // --- Bucket jamming (from hitting an oil slick) ------------------------
 
 function jamBucket() {
     bucketJammed = true;
     bucket.classList.add('jammed');
+    bucketShakeUntil = Date.now() + 300;
 
     setTimeout(function () {
         bucketJammed = false;
@@ -772,6 +830,14 @@ function enterNewBucket() {
     clearCrackVisuals();
     bucketFill = 0;
     bucketFillElement.style.height = '0%';
+
+    // Start the new bucket's swing from neutral, and clear the inline
+    // transform so nothing stale shows once the entering animation ends
+    bucketTilt = 0;
+    bucketTiltVelocity = 0;
+    bucketShakeUntil = 0;
+    bucket.style.transform = '';
+
     bucket.classList.remove('exiting-success', 'exiting-contaminated', 'exploding');
     bucket.classList.add('entering');
 
@@ -1059,6 +1125,8 @@ function gameLoop() {
     updateTimerDisplay();
 
     updateBucketVelocity();
+    updateBucketSwing();
+    maybeSloshSplash();
     updateFilterPhysics();
     checkBucketFilterCollision();
 
@@ -1147,10 +1215,14 @@ function startGame() {
     const startY = bounds.maxY;
     bucket.style.left = `${startX}px`;
     bucket.style.top = `${startY}px`;
+    bucket.style.transform = '';
     lastBucketX = startX;
     lastBucketY = startY;
     bucketVX = 0;
     bucketVY = 0;
+    bucketTilt = 0;
+    bucketTiltVelocity = 0;
+    bucketShakeUntil = 0;
 
     // Place the filter roughly in the upper-middle of the game area
     filterX = (gameArea.clientWidth - filterElement.offsetWidth) / 2;

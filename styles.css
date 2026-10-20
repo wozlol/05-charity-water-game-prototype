@@ -419,15 +419,9 @@ body.playing .stat {
     border-color: #F5402C;
 }
 
-#bucket.jammed {
-    animation: bucketShake 300ms ease;
-}
-
-@keyframes bucketShake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-4px); }
-    75% { transform: translateX(4px); }
-}
+/* The jam shake and the swing tilt both live on #bucket's transform, so
+   the shake is driven from script.js alongside the tilt instead of being
+   a separate CSS animation that would fight it */
 
 /* Cracks: procedural branching lines drawn into here by script.js,
    confined to the bucket's own clip-path */
