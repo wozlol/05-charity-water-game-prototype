@@ -478,13 +478,14 @@ body.playing .stat {
 /* A smaller mask, inset from the bucket's own outer shape, so the metal
    shows through as a visible rim around the water instead of the fill
    sitting flush against the outer edge */
+/* Same box as .bucket-body (not a separately-sized rectangle), with each
+   point of the outer polygon shifted inward by the same horizontal
+   amount, which keeps the inner edges perfectly parallel to the outer
+   angled sides instead of cutting a rectangular notch out of them */
 .bucket-cavity {
     position: absolute;
-    top: 4px;
-    left: 4px;
-    right: 4px;
-    bottom: 0;
-    clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 10% 100%);
+    inset: 0;
+    clip-path: polygon(8% 6%, 92% 6%, 82% 100%, 18% 100%);
     overflow: hidden;
 }
 
@@ -718,6 +719,61 @@ body.playing .stat {
         33% 80%, 22% 91%, 12% 86%, 17% 73%, 38% 57%,
         50% 50%
     );
+}
+
+/* A crumpled paper ball: an irregular off-white lump with a few faint
+   crease lines */
+.drop.obstacle.obstacle-paperball {
+    border-radius: 48% 52% 55% 45% / 52% 48% 50% 55%;
+    background:
+        linear-gradient(115deg, transparent 46%, rgba(120, 120, 120, 0.35) 48%, transparent 50%),
+        linear-gradient(25deg, transparent 56%, rgba(120, 120, 120, 0.3) 58%, transparent 60%),
+        linear-gradient(170deg, transparent 36%, rgba(110, 110, 110, 0.25) 38%, transparent 40%),
+        radial-gradient(circle at 35% 30%, #ffffff 0%, #e8e6df 55%, #c7c4ba 100%);
+    border: 2px solid #b5b2a8;
+}
+
+/* A flip flop: an oval rubber sole with a thong strap meeting at a dot */
+.drop.obstacle.obstacle-flipflop {
+    border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+    background:
+        radial-gradient(circle 1.8px at 50% 38%, #222 90%, transparent 95%),
+        linear-gradient(200deg, transparent 47%, #222 48.5%, #222 51.5%, transparent 53%),
+        linear-gradient(160deg, transparent 47%, #222 48.5%, #222 51.5%, transparent 53%),
+        linear-gradient(160deg, #ff6b6b 0%, #e94b4b 60%, #c23a3a 100%);
+    border: 2px solid #8a2424;
+}
+
+/* A wood plank with a nail driven through it: horizontal grain, a nail
+   shaft, and a nail head */
+.drop.obstacle.obstacle-plank {
+    border-radius: 3px;
+    background:
+        radial-gradient(circle 2.6px at 50% 38%, #cfcfcf 0%, #cfcfcf 40%, #8a8a8a 55%, transparent 60%),
+        linear-gradient(90deg, transparent 47%, #9a9a9a 48%, #9a9a9a 52%, transparent 53%),
+        repeating-linear-gradient(180deg, rgba(90, 55, 20, 0.25) 0 2px, transparent 2px 7px),
+        linear-gradient(180deg, #a9703a 0%, #8a5a2b 60%, #6e4720 100%);
+    border: 2px solid #5a3a18;
+}
+
+/* A screw: a slotted head over a threaded, tapered shaft */
+.drop.obstacle.obstacle-screw {
+    border-radius: 0;
+    clip-path: polygon(32% 14%, 68% 14%, 68% 70%, 50% 100%, 32% 70%);
+    background:
+        linear-gradient(90deg, transparent 47%, #222 48%, #222 52%, transparent 53%),
+        repeating-linear-gradient(55deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 6px),
+        linear-gradient(180deg, #e2e2e2 0%, #e2e2e2 18%, #aeaeae 20% 55%, #777 100%);
+}
+
+/* A juice box: a bright carton with a label stripe and a bent straw */
+.drop.obstacle.obstacle-juicebox {
+    border-radius: 2px;
+    background:
+        linear-gradient(200deg, transparent 0% 46%, #cfcfcf 46% 50%, transparent 50% 100%),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.3) 0% 15%, transparent 15% 100%),
+        linear-gradient(180deg, #FF902A 0%, #F5402C 55%, #c23325 100%);
+    border: 2px solid #a82b1d;
 }
 
 /* Splash particles, fired off whenever the bucket catches something */
