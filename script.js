@@ -38,7 +38,7 @@ const FILL_STEP = 10;
 
 // Obstacle drops get tagged with one of these for visual variety. An
 // empty string keeps the default oil-slick look.
-const obstacleVariants = ['', 'obstacle-can', 'obstacle-bottle', 'obstacle-tire'];
+const obstacleVariants = ['', 'obstacle-can', 'obstacle-bottle', 'obstacle-tire', 'obstacle-banana'];
 
 // A rotating gallery of river photos, one shown at a time behind the game
 const riverBackgrounds = [
@@ -542,6 +542,9 @@ function spawnDrop() {
         if (variant) {
             drop.classList.add(variant);
         }
+    } else {
+        // Each water drop wiggles at its own slightly different speed
+        drop.style.animationDuration = `${(1.2 + (Math.random() * 1.2)).toFixed(2)}s`;
     }
 
     const areaWidth = gameArea.clientWidth;
@@ -586,7 +589,7 @@ function filterDrop(dropInfo) {
 // Moves the filter each tick: gravity pulls it down slowly, friction slows
 // it down over time, and it bounces gently off the walls of the game area.
 function updateFilterPhysics() {
-    filterVY = filterVY + 0.05;
+    filterVY = filterVY + 0.11;
 
     filterX = filterX + filterVX;
     filterY = filterY + filterVY;
@@ -612,9 +615,9 @@ function updateFilterPhysics() {
         filterVY = -filterVY * 0.5;
     } else if (filterY > areaHeight - filterHeight) {
         filterY = areaHeight - filterHeight;
-        // Extra kick off the floor, with a minimum bounce so gravity can't
-        // just pin it flat against the bottom
-        filterVY = (-Math.abs(filterVY) * 0.6) - 1.3;
+        // A stronger kick off the floor, with a bigger minimum bounce so it
+        // springs back up higher instead of just settling near the bottom
+        filterVY = (-Math.abs(filterVY) * 0.8) - 2.6;
     }
 
     filterElement.style.left = `${filterX}px`;

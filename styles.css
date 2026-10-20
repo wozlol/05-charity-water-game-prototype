@@ -602,7 +602,26 @@ body.playing .stat {
     width: 28px;
     height: 28px;
     border-radius: 50% 50% 0 50%;
-    transform: rotate(225deg);
+}
+
+/* Water drops wiggle continuously, the same elastic squish-and-rotate as
+   the FoxWizard mode switch's click wobble, just looped forever instead
+   of firing once. The 225deg keeps the teardrop's point-up orientation
+   underneath the wiggle. script.js randomizes each drop's duration a
+   little so they don't all wiggle in lockstep. */
+@keyframes dropWiggle {
+    0%   { transform: rotate(225deg) scale(1) rotate(0deg); }
+    15%  { transform: rotate(225deg) scale(0.85, 1.25) rotate(-12deg); }
+    30%  { transform: rotate(225deg) scale(1.3, 0.75) rotate(8deg); }
+    45%  { transform: rotate(225deg) scale(0.8, 1.2) rotate(-6deg); }
+    60%  { transform: rotate(225deg) scale(1.15, 0.85) rotate(4deg); }
+    75%  { transform: rotate(225deg) scale(0.92, 1.08) rotate(-2deg); }
+    90%  { transform: rotate(225deg) scale(1.05, 0.95) rotate(1deg); }
+    100% { transform: rotate(225deg) scale(1) rotate(0deg); }
+}
+
+.drop.clean, .drop.dirty {
+    animation: dropWiggle 1.7s ease-in-out infinite;
 }
 
 .drop.clean {
@@ -615,12 +634,23 @@ body.playing .stat {
     box-shadow: 0 0 9px rgba(138, 90, 43, 0.55);
 }
 
-/* Default obstacle look: an oil slick. script.js randomly tags obstacle
-   drops with one of the variant classes below for visual variety. */
+/* Trash slowly tumbles as it falls */
+@keyframes dropSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Default obstacle look: an oil slick, with three finger holes like a
+   bowling ball. script.js randomly tags obstacle drops with one of the
+   variant classes below for visual variety. */
 .drop.obstacle {
     border-radius: 50%;
-    transform: none;
-    background: radial-gradient(circle at 35% 30%, #777 0%, #333333 65%, #111 100%);
+    animation: dropSpin 3.4s linear infinite;
+    background:
+        radial-gradient(circle 2.3px at 40% 34%, #040404 0%, #040404 55%, rgba(0, 0, 0, 0.5) 72%, transparent 85%),
+        radial-gradient(circle 2.3px at 58% 36%, #040404 0%, #040404 55%, rgba(0, 0, 0, 0.5) 72%, transparent 85%),
+        radial-gradient(circle 2.3px at 49% 52%, #040404 0%, #040404 55%, rgba(0, 0, 0, 0.5) 72%, transparent 85%),
+        radial-gradient(circle at 35% 30%, #999 0%, #333333 65%, #111 100%);
     border: 2px solid #F5402C;
     box-shadow: 0 0 10px rgba(245, 64, 44, 0.6);
 }
@@ -640,10 +670,41 @@ body.playing .stat {
     background: linear-gradient(180deg, rgba(158, 206, 112, 0.55) 0%, rgba(85, 139, 47, 0.75) 100%);
 }
 
-/* A tire: a dark rubber ring around a lighter hub */
+/* A tire: a tread-studded rubber ring with a hub and lug nuts, a little
+   bigger than the other trash so it reads clearly */
 .drop.obstacle.obstacle-tire {
+    width: 33px;
+    height: 33px;
     border-radius: 50%;
-    background: radial-gradient(circle at 50% 50%, #cfcfcf 0% 20%, #222 22% 68%, #0c0c0c 70% 100%);
+    background:
+        radial-gradient(circle 1.6px at 50% 24%, #555 90%, transparent 95%),
+        radial-gradient(circle 1.6px at 71% 38%, #555 90%, transparent 95%),
+        radial-gradient(circle 1.6px at 63% 64%, #555 90%, transparent 95%),
+        radial-gradient(circle 1.6px at 37% 64%, #555 90%, transparent 95%),
+        radial-gradient(circle 1.6px at 29% 38%, #555 90%, transparent 95%),
+        repeating-conic-gradient(#1c1c1c 0deg 9deg, #2d2d2d 9deg 18deg),
+        radial-gradient(circle at 50% 50%, #d8d8d8 0% 17%, #8a8a8a 18% 23%, transparent 24% 100%);
+    box-shadow:
+        inset 0 0 0 3px #050505,
+        0 0 10px rgba(245, 64, 44, 0.6);
+}
+
+/* A banana peel: three curled strips splayed from a center point */
+.drop.obstacle.obstacle-banana {
+    border-radius: 0;
+    background:
+        radial-gradient(circle 1.6px at 46% 58%, rgba(90, 60, 20, 0.7) 90%, transparent 95%),
+        radial-gradient(circle 1.4px at 59% 47%, rgba(90, 60, 20, 0.7) 90%, transparent 95%),
+        linear-gradient(135deg, #ffe066 0%, #ffd23f 45%, #e6b800 75%, #b88a00 100%);
+    clip-path: polygon(
+        50% 50%,
+        58% 16%, 67% 8%, 76% 15%, 69% 30%, 57% 47%,
+        50% 50%,
+        83% 57%, 94% 61%, 95% 72%, 84% 77%, 65% 61%,
+        50% 50%,
+        33% 80%, 22% 91%, 12% 86%, 17% 73%, 38% 57%,
+        50% 50%
+    );
 }
 
 /* Splash particles, fired off whenever the bucket catches something */
@@ -991,6 +1052,11 @@ button.click-wobble {
     .drop {
         width: 22px;
         height: 22px;
+    }
+
+    .drop.obstacle.obstacle-tire {
+        width: 26px;
+        height: 26px;
     }
 
     #filter {
