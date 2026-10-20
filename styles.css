@@ -150,6 +150,32 @@ header::before {
     pointer-events: none;
 }
 
+/* A diagonal shine sweeps across the whole header box periodically. Uses
+   `left` (resolved against the header's own width) rather than
+   `transform: translateX()` (which resolves against the band's own,
+   much narrower width) so it reliably clears the box before looping. */
+header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -40%;
+    width: 30%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+    transform: skewX(-20deg);
+    animation: headerShimmerSweep 3.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes headerShimmerSweep {
+    0%   { left: -40%; }
+    100% { left: 140%; }
+}
+
+body.playing header::after {
+    animation: none;
+}
+
 #logo {
     position: relative;
     max-width: 220px;
@@ -164,30 +190,6 @@ h1 {
     margin: 5px 0;
     font-weight: 700;
     letter-spacing: 1px;
-    overflow: hidden;
-}
-
-/* A diagonal shine sweeps across the title periodically, same trick as
-   the button shimmer */
-h1::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -60%;
-    width: 35%;
-    height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-    animation: titleShimmerSweep 3.5s ease-in-out infinite;
-    pointer-events: none;
-}
-
-@keyframes titleShimmerSweep {
-    0%   { transform: translateX(0) skewX(-20deg); }
-    100% { transform: translateX(380%) skewX(-20deg); }
-}
-
-body.playing h1::after {
-    animation: none;
 }
 
 /* Each letter is its own glossy chrome bubble: a vertical gradient fill
@@ -292,21 +294,24 @@ body.playing .title-letter {
 }
 
 /* A diagonal shine sweeps across the panel periodically */
+/* Same `left`-based sweep as the header, so it fully clears the panel
+   before looping instead of blinking out mid-box */
 #stats-bar::after {
     content: '';
     position: absolute;
     top: 0;
-    left: -60%;
+    left: -40%;
     width: 30%;
     height: 100%;
     background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+    transform: skewX(-20deg);
     animation: statsShimmerSweep 4s ease-in-out infinite;
     pointer-events: none;
 }
 
 @keyframes statsShimmerSweep {
-    0%   { transform: translateX(0) skewX(-20deg); }
-    100% { transform: translateX(450%) skewX(-20deg); }
+    0%   { left: -40%; }
+    100% { left: 140%; }
 }
 
 body.playing #stats-bar::after {
