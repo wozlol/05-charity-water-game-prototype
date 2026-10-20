@@ -397,8 +397,11 @@ function addScore(points) {
         // Each level needs a bit more score than the last, so the ramp
         // eases off instead of speeding up at a constant rate
         nextLevelScore = nextLevelScore + 10 + (level * 2);
-        dropSpeed = dropSpeed + 0.25;
-        spawnDelay = Math.max(450, spawnDelay - 40);
+
+        // The speed and spawn-rate bumps shrink as the level climbs, so the
+        // difficulty tapers off instead of stacking up into a sudden wall
+        dropSpeed = dropSpeed + Math.max(0.1, 0.3 - (level * 0.02));
+        spawnDelay = Math.max(500, spawnDelay - Math.max(15, 45 - (level * 3)));
         restartSpawnTimer();
         launchConfetti(18);
         playLevelUpSound();
