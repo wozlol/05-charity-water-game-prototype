@@ -686,6 +686,13 @@ body.playing .stat {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(222, 244, 255, 0.93) 100%);
     box-shadow: inset 0 3px 12px rgba(255, 255, 255, 0.6);
     z-index: 2;
+    overflow-y: auto;
+}
+
+/* Buttons and headings never shrink to make room for the scoreboard;
+   only the scoreboard's own list scrolls internally (see .leaderboard ol) */
+.overlay button, .overlay h2 {
+    flex-shrink: 0;
 }
 
 .overlay.hidden {
@@ -704,6 +711,13 @@ body.playing .stat {
     text-shadow:
         0 1px 0 rgba(255, 255, 255, 0.85),
         0 0 16px rgba(46, 157, 247, 0.5);
+}
+
+/* Game Over gets the same glossy chrome letters as the header title (via
+   .title-letter, applied to its children by script.js), just huge */
+#game-over-title {
+    font-size: 2.6rem;
+    line-height: 1.1;
 }
 
 .overlay p {
@@ -736,16 +750,21 @@ body.playing .stat {
     margin: 0;
     padding-left: 22px;
     text-align: left;
-    font-size: 0.85rem;
+    font-size: 1.05rem;
+    max-height: 180px;
+    overflow-y: auto;
+    flex-shrink: 0;
 }
 
 .leaderboard li {
-    padding: 2px 0;
+    padding: 6px 0;
 }
 
 .leaderboard li.empty {
     list-style: none;
     margin-left: -22px;
+    width: calc(100% + 22px);
+    text-align: center;
     color: #666;
 }
 

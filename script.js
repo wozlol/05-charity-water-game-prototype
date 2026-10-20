@@ -83,8 +83,11 @@ let lastDisplayedSecond = -1;
 // The smallest a run is allowed to be before it can rank on the scoreboard,
 // so one lucky early bucket can't fake an absurd buckets-per-minute rate
 const MIN_RANKED_MS = 10000;
-const LEADERBOARD_KEY = 'bucketMasterLeaderboard';
-const LEADERBOARD_SIZE = 10;
+
+// Bumped to v2 so switching to a top-5 board also clears out everyone's
+// old top-10 scores instead of needing to migrate them
+const LEADERBOARD_KEY = 'bucketMasterLeaderboardV2';
+const LEADERBOARD_SIZE = 5;
 
 // Bucket velocity, tracked each tick so we can push the filter realistically
 let lastBucketX = 0;
@@ -1250,6 +1253,7 @@ function endGame() {
     gameArea.classList.remove('playing');
     document.body.classList.remove('playing');
     startTitleWave(level >= 10);
+    startGameOverTitleWave();
 
     const bpm = computeBucketsPerMinute();
 
@@ -1430,7 +1434,7 @@ pauseBtn.addEventListener('click', pauseGame);
 resumeBtn.addEventListener('click', resumeGame);
 
 saveNameBtn.addEventListener('click', function () {
-    const name = nameInput.value.trim() || 'Anonymous';
+    const name = nameInput.value.trim().slice(0, 7) || 'Guest';
     const bpm = computeBucketsPerMinute();
     const updatedEntries = addLeaderboardEntry(name, bpm);
 
@@ -1461,19 +1465,18 @@ document.addEventListener('click', function (event) {
 // 1.8s. It only ever nudges a little each time, never jumps.
 let classicWavelengthDrift = 0;
 
-// Rebuilds the title into per-letter spans. useChaoticVariant picks which
-// wave personality plays: the louder per-letter wobble (only used when the
-// player dies on level 10+), or the gradual even stagger that's the norm
-// the rest of the time, whose wavelength drifts a touch further each time
-// instead of resetting to exactly 1.8s.
-function startTitleWave(useChaoticVariant) {
-    const titleEl = document.getElementById('title');
-    if (!titleEl) {
+// Rebuilds `element`'s text into per-letter spans. useChaoticVariant picks
+// which wave personality plays: the louder per-letter wobble, or the
+// gradual even stagger that's the norm the rest of the time, whose
+// wavelength drifts a touch further each time instead of resetting to
+// exactly 1.8s.
+function splitIntoWaveLetters(element, useChaoticVariant) {
+    if (!element) {
         return;
     }
 
-    const text = titleEl.textContent;
-    titleEl.textContent = '';
+    const text = element.textContent;
+    element.textContent = '';
 
     if (!useChaoticVariant) {
         const driftStep = (Math.random() * 0.06) - 0.03;
@@ -1505,8 +1508,20 @@ function startTitleWave(useChaoticVariant) {
             span.style.setProperty('--bob-height', '6px');
         }
 
-        titleEl.appendChild(span);
+        element.appendChild(span);
     }
+}
+
+// The header title: useChaoticVariant picks between the louder wobble
+// (only used when the player dies on level 10+) and the gradual norm
+function startTitleWave(useChaoticVariant) {
+    splitIntoWaveLetters(document.getElementById('title'), useChaoticVariant);
+}
+
+// The "Game Over" heading always gets the louder, more violent wobble,
+// same letters/gradient styling as the header title
+function startGameOverTitleWave() {
+    splitIntoWaveLetters(document.getElementById('game-over-title'), true);
 }
 
 startTitleWave(false);

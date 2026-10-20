@@ -83,14 +83,14 @@
 
         <!-- Shown when lives run out -->
         <div id="game-over-screen" class="overlay hidden">
-            <h2>Game Over</h2>
+            <h2 id="game-over-title">Game Over</h2>
             <p id="final-buckets"></p>
             <p id="final-time"></p>
             <p id="final-rate"></p>
             <p id="collection-rate"></p>
             <div id="name-entry" class="hidden">
                 <p>New top bucket rate! Enter your name:</p>
-                <input type="text" id="name-input" maxlength="16" placeholder="Your name">
+                <input type="text" id="name-input" maxlength="7" placeholder="Your name">
                 <button id="save-name-btn">Save</button>
             </div>
             <div class="leaderboard">
