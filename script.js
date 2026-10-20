@@ -317,7 +317,9 @@ function updateFilterPhysics() {
         filterVY = -filterVY * 0.5;
     } else if (filterY > areaHeight - filterHeight) {
         filterY = areaHeight - filterHeight;
-        filterVY = -filterVY * 0.5;
+        // Extra kick off the floor, with a minimum bounce so gravity can't
+        // just pin it flat against the bottom
+        filterVY = (-Math.abs(filterVY) * 0.6) - 1.3;
     }
 
     filterElement.style.left = `${filterX}px`;
@@ -392,9 +394,11 @@ function addScore(points) {
         level = level + 1;
         levelDisplay.textContent = level;
         popStat(levelDisplay);
-        nextLevelScore = nextLevelScore + 10;
-        dropSpeed = dropSpeed + 0.5;
-        spawnDelay = Math.max(500, spawnDelay - 80);
+        // Each level needs a bit more score than the last, so the ramp
+        // eases off instead of speeding up at a constant rate
+        nextLevelScore = nextLevelScore + 10 + (level * 2);
+        dropSpeed = dropSpeed + 0.25;
+        spawnDelay = Math.max(450, spawnDelay - 40);
         restartSpawnTimer();
         launchConfetti(18);
         playLevelUpSound();
