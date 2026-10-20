@@ -603,6 +603,12 @@ button::after {
     100% { transform: translateX(480%) skewX(-20deg); }
 }
 
+/* The controls keep their glossy look while playing, but the shine sweep
+   stops so it doesn't keep distracting from the game itself */
+#game-area.playing ~ #controls button::before {
+    animation: none;
+}
+
 button:hover {
     filter: brightness(1.12);
     transform: translateY(-2px);
