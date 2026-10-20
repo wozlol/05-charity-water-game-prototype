@@ -475,6 +475,19 @@ body.playing .stat {
         inset 0 -8px 12px rgba(0, 0, 0, 0.2);
 }
 
+/* A smaller mask, inset from the bucket's own outer shape, so the metal
+   shows through as a visible rim around the water instead of the fill
+   sitting flush against the outer edge */
+.bucket-cavity {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 0;
+    clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 10% 100%);
+    overflow: hidden;
+}
+
 #bucket-fill {
     position: absolute;
     bottom: 0;
