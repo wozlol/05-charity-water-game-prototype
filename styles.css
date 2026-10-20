@@ -19,7 +19,7 @@ Secondary Colors:
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Fredoka', Arial, Helvetica, sans-serif;
     text-align: center;
     background:
         radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%),
@@ -157,21 +157,53 @@ header::before {
     filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.18));
 }
 
+/* The header itself stays soft and plainly transparent; the title and
+   stats row below get pushed much further into glossy chrome instead */
 h1 {
     position: relative;
     margin: 5px 0;
-    color: #2E9DF7;
-    letter-spacing: 0.5px;
-    text-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.85),
-        0 2px 5px rgba(46, 157, 247, 0.35),
-        0 0 18px rgba(46, 157, 247, 0.5);
+    font-weight: 700;
+    letter-spacing: 1px;
+    overflow: hidden;
 }
 
-/* Each title letter bobs up and down in its own slow wave, split into
-   spans and given a randomized delay by script.js */
+/* A diagonal shine sweeps across the title periodically, same trick as
+   the button shimmer */
+h1::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 35%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    animation: titleShimmerSweep 3.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes titleShimmerSweep {
+    0%   { transform: translateX(0) skewX(-20deg); }
+    100% { transform: translateX(380%) skewX(-20deg); }
+}
+
+body.playing h1::after {
+    animation: none;
+}
+
+/* Each letter is its own glossy chrome bubble: a vertical gradient fill
+   clipped to the text, plus an embossed shadow for depth. They bob up and
+   down in a slow wave, split into spans and given a randomized delay by
+   script.js. */
 .title-letter {
     display: inline-block;
+    background: linear-gradient(180deg, #ffffff 0%, #cfe9ff 14%, #2E9DF7 42%, #155ea0 58%, #6fc3ff 75%, #eaf8ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow:
+        0 2px 0 rgba(10, 60, 100, 0.35),
+        0 5px 10px rgba(46, 157, 247, 0.35);
     animation: titleWave 1.8s ease-in-out infinite;
 }
 
@@ -238,20 +270,47 @@ body.playing .title-letter {
     background: radial-gradient(circle at 35% 28%, #fbfbfb 0%, #cfcfcf 50%, #8d8d8d 100%);
 }
 
-/* Stats bar above the game area: same glassy, embossed treatment */
+/* Stats bar above the game area: pushed well past the header's soft
+   glass look into full plasticy, chrome-bevel gloss */
 #stats-bar {
+    position: relative;
     display: flex;
     justify-content: center;
     gap: 20px;
     max-width: 500px;
     margin: 15px auto;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(224, 245, 255, 0.88) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(205, 238, 255, 0.92) 55%, rgba(175, 222, 252, 0.9) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
     padding: 14px 10px;
+    overflow: hidden;
     box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.9) inset,
-        0 8px 20px rgba(46, 157, 247, 0.22);
+        0 2px 0 rgba(255, 255, 255, 0.95) inset,
+        0 -10px 16px rgba(46, 157, 247, 0.18) inset,
+        0 10px 22px rgba(46, 157, 247, 0.3),
+        0 0 0 1px rgba(46, 157, 247, 0.15);
+}
+
+/* A diagonal shine sweeps across the panel periodically */
+#stats-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 30%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+    animation: statsShimmerSweep 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes statsShimmerSweep {
+    0%   { transform: translateX(0) skewX(-20deg); }
+    100% { transform: translateX(450%) skewX(-20deg); }
+}
+
+body.playing #stats-bar::after {
+    animation: none;
 }
 
 /* Delay, duration, and bob height are randomized per stat by script.js,
@@ -275,18 +334,25 @@ body.playing .stat {
 
 .stat-label {
     font-size: 0.75rem;
+    font-weight: 600;
     text-transform: uppercase;
-    color: #555;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.5px;
+    color: #4a7fa8;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
+/* Glossy chrome numbers, same vertical gradient-fill trick as the title */
 #timer-display, #level-display, #buckets-display {
     font-size: 1.75rem;
-    font-weight: bold;
-    color: #2E9DF7;
+    font-weight: 700;
+    background: linear-gradient(180deg, #ffffff 0%, #cfe9ff 14%, #2E9DF7 42%, #155ea0 58%, #6fc3ff 75%, #eaf8ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
     text-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.85),
-        0 0 10px rgba(46, 157, 247, 0.5);
+        0 2px 0 rgba(10, 60, 100, 0.3),
+        0 4px 10px rgba(46, 157, 247, 0.4);
     transition: transform 150ms ease;
 }
 
@@ -440,16 +506,17 @@ body.playing .stat {
     stroke-linecap: round;
 }
 
-/* A new bucket wooshes up from offscreen, starting huge and settling to
-   normal size with a little overshoot */
+/* A new bucket wooshes up from way offscreen below, starting massive
+   (clipped by the play area's own edges) and settling to normal size
+   with a little overshoot */
 @keyframes bucketEnter {
-    0%   { transform: scale(2.4) translateY(260px); opacity: 0; }
-    55%  { opacity: 1; }
+    0%   { transform: scale(7) translateY(480px); opacity: 0; }
+    4%   { opacity: 1; }
     100% { transform: scale(1) translateY(0); opacity: 1; }
 }
 
 #bucket.entering {
-    animation: bucketEnter 650ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: bucketEnter 750ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* A filled bucket shrinks up and away toward the bucket counter */
@@ -463,11 +530,13 @@ body.playing .stat {
 }
 
 /* A contaminated bucket lifts like it's being wound up for a throw, then
-   gets flung off to whichever side --fling-dir points */
+   gets flung off to whichever side --fling-dir points. --fling-distance
+   is set by script.js to whatever it takes to clear the play area
+   completely from wherever the bucket currently is. */
 @keyframes bucketExitContaminated {
     0%   { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
     20%  { transform: translate(0, -18px) rotate(calc(var(--fling-dir, 1) * -8deg)) scale(1); opacity: 1; }
-    100% { transform: translate(calc(var(--fling-dir, 1) * 420px), -40px) rotate(calc(var(--fling-dir, 1) * 70deg)) scale(0.2); opacity: 0; }
+    100% { transform: translate(calc(var(--fling-dir, 1) * var(--fling-distance, 420px)), -40px) rotate(calc(var(--fling-dir, 1) * 70deg)) scale(0.2); opacity: 0; }
 }
 
 #bucket.exiting-contaminated {

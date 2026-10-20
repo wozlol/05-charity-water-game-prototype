@@ -844,7 +844,7 @@ function enterNewBucket() {
     setTimeout(function () {
         bucket.classList.remove('entering');
         bucketTransitioning = false;
-    }, 650);
+    }, 750);
 }
 
 // A full bucket shrinks up and away toward the bucket counter, then a
@@ -864,7 +864,13 @@ function exitBucketSuccess() {
 function exitBucketContaminated() {
     bucketTransitioning = true;
     const flingDirection = Math.random() < 0.5 ? -1 : 1;
+
+    // Enough distance to clear the play area completely no matter where
+    // the bucket currently is or which way it's flung
+    const flingDistance = gameArea.clientWidth + bucket.offsetWidth + 100;
+
     bucket.style.setProperty('--fling-dir', flingDirection);
+    bucket.style.setProperty('--fling-distance', `${flingDistance}px`);
     bucket.classList.add('exiting-contaminated');
 
     setTimeout(function () {
