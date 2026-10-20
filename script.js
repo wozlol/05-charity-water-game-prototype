@@ -35,6 +35,10 @@ const riverBgB = document.getElementById('river-bg-b');
 // How many clean drops it takes to fill one bucket
 const FILL_STEP = 10;
 
+// Obstacle drops get tagged with one of these for visual variety. An
+// empty string keeps the default oil-slick look.
+const obstacleVariants = ['', 'obstacle-can', 'obstacle-bottle', 'obstacle-tire'];
+
 // A rotating gallery of river photos, one shown at a time behind the game
 const riverBackgrounds = [
     'img/rivers/river-1-tranquil-stream.jpg',
@@ -84,6 +88,10 @@ let filterX = 0;
 let filterY = 0;
 let filterVX = 0;
 let filterVY = 0;
+
+// So the filter-bump sound doesn't machine-gun while the bucket stays
+// pressed against the filter
+let lastFilterBumpSoundTime = 0;
 
 let spawnTimerId = null;
 let gameLoopId = null;
@@ -286,6 +294,97 @@ function playCatchDirtySound() {
     playWaterDrop(260, 120, 0.22);
 }
 
+// The thunk of the bucket knocking into something solid: a low triangle
+// tone that drops in pitch fast, plus muffled lowpass noise for body
+function playBumpThunk(baseFrequency, duration, volume) {
+    if (!soundOn) {
+        return;
+    }
+
+    const ctx = getAudioContext();
+
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = 'triangle';
+    oscillator.frequency.setValueAtTime(baseFrequency, ctx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(baseFrequency * 0.5, ctx.currentTime + duration);
+
+    gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + duration);
+
+    const noiseSource = ctx.createBufferSource();
+    noiseSource.buffer = createNoiseBuffer(duration);
+
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'lowpass';
+    noiseFilter.frequency.value = baseFrequency * 1.5;
+
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(volume * 0.5, ctx.currentTime);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+    noiseSource.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noiseSource.start();
+    noiseSource.stop(ctx.currentTime + duration);
+}
+
+// A burst of noise with a choppy, random-stepped gain envelope instead of
+// a smooth decay, for a crackling texture tacked onto the end of a sound
+function playCrackle(duration, delay, volume) {
+    if (!soundOn) {
+        return;
+    }
+
+    const ctx = getAudioContext();
+    const startTime = ctx.currentTime + delay;
+
+    const noiseSource = ctx.createBufferSource();
+    noiseSource.buffer = createNoiseBuffer(duration);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.value = 2200;
+
+    const gainNode = ctx.createGain();
+    gainNode.gain.setValueAtTime(0, startTime);
+
+    const stepCount = 18;
+    for (let i = 0; i < stepCount; i++) {
+        const stepTime = startTime + ((i / stepCount) * duration);
+        const ceiling = volume * (1 - (i / stepCount));
+        gainNode.gain.setValueAtTime(Math.random() * ceiling, stepTime);
+    }
+    gainNode.gain.setValueAtTime(0, startTime + duration);
+
+    noiseSource.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    noiseSource.start(startTime);
+    noiseSource.stop(startTime + duration);
+}
+
+// A gentle knock when the bucket pushes the filter around, randomly
+// pitched a little higher or lower each time
+function playFilterBumpSound() {
+    const pitchShift = (Math.random() < 0.5 ? -1 : 1) * (20 + (Math.random() * 40));
+    playBumpThunk(220 + pitchShift, 0.1, 0.22);
+}
+
+// A heavier knock when the bucket collides with a piece of trash: louder,
+// longer, with a crackle of debris at the end
+function playTrashBumpSound() {
+    playBumpThunk(180, 0.22, 0.4);
+    playCrackle(0.25, 0.08, 0.3);
+}
+
 function playFilterPingSound() {
     playBubble(760, 0.14);
 }
@@ -411,6 +510,13 @@ function spawnDrop() {
 
     drop.classList.add(dropType);
 
+    if (dropType === 'obstacle') {
+        const variant = obstacleVariants[Math.floor(Math.random() * obstacleVariants.length)];
+        if (variant) {
+            drop.classList.add(variant);
+        }
+    }
+
     const areaWidth = gameArea.clientWidth;
     const randomLeft = Math.random() * (areaWidth - 28);
     drop.style.left = `${randomLeft}px`;
@@ -514,6 +620,12 @@ function checkBucketFilterCollision() {
     setTimeout(function () {
         filterElement.classList.remove('bumped');
     }, 200);
+
+    const now = Date.now();
+    if (now - lastFilterBumpSoundTime > 150) {
+        lastFilterBumpSoundTime = now;
+        playFilterBumpSound();
+    }
 }
 
 function updateBucketVelocity() {
@@ -692,7 +804,7 @@ function handleCatch(dropInfo) {
         jamBucket();
         triggerAreaWobble();
         launchSplash(dropX, dropY, 'dirty-splash', 9);
-        playCatchDirtySound();
+        playTrashBumpSound();
     }
 }
 
