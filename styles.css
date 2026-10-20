@@ -460,32 +460,50 @@ body.playing .stat {
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset;
 }
 
+/* The bucket is built from three nested trapezoids, each shifted inward
+   from the last by the same horizontal amount at both top and bottom x
+   coordinates. Shifting both endpoints of a sloped edge by an equal
+   amount preserves its slope exactly, so every layer's angled sides stay
+   perfectly parallel to the outer one. A plain `border` can't do this: it
+   always draws along the element's original rectangular box, not its
+   clip-path, so it only lines up near the top and leaves the tapered
+   sides with no outline at all. Layering solid-color trapezoids instead
+   makes each one peek out as a clean, evenly-angled rim around the next. */
+
+/* Outermost layer: solid gold, this IS the bucket's rim color */
 .bucket-body {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 56px;
-    background: linear-gradient(180deg, #eef2f3 0%, #d7dee1 35%, #aab4ba 100%);
-    border: 3px solid #FF902A;
+    background: linear-gradient(180deg, #ffd27a 0%, #FF902A 55%, #d9730a 100%);
     clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 10% 100%);
+    overflow: hidden;
+    box-shadow:
+        inset 0 3px 5px rgba(255, 255, 255, 0.5),
+        inset 0 -6px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Middle layer: the galvanized-metal gray, inset from the gold so it
+   shows as an even gold rim all the way around */
+.bucket-metal {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #eef2f3 0%, #d7dee1 35%, #aab4ba 100%);
+    clip-path: polygon(5% 4%, 95% 4%, 85% 100%, 15% 100%);
     overflow: hidden;
     box-shadow:
         inset 0 4px 6px rgba(255, 255, 255, 0.6),
         inset 0 -8px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* A smaller mask, inset from the bucket's own outer shape, so the metal
-   shows through as a visible rim around the water instead of the fill
-   sitting flush against the outer edge */
-/* Same box as .bucket-body (not a separately-sized rectangle), with each
-   point of the outer polygon shifted inward by the same horizontal
-   amount, which keeps the inner edges perfectly parallel to the outer
-   angled sides instead of cutting a rectangular notch out of them */
+/* Innermost layer: masks the water fill, inset further so the metal
+   shows as its own rim around the water */
 .bucket-cavity {
     position: absolute;
     inset: 0;
-    clip-path: polygon(8% 6%, 92% 6%, 82% 100%, 18% 100%);
+    clip-path: polygon(12% 10%, 88% 10%, 78% 100%, 22% 100%);
     overflow: hidden;
 }
 
@@ -501,7 +519,7 @@ body.playing .stat {
 }
 
 #bucket.jammed .bucket-body {
-    border-color: #F5402C;
+    background: linear-gradient(180deg, #ff9a8a 0%, #F5402C 55%, #b82e1f 100%);
 }
 
 /* The jam shake and the swing tilt both live on #bucket's transform, so
