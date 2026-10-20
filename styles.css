@@ -429,6 +429,69 @@ body.playing .stat {
     75% { transform: translateX(4px); }
 }
 
+/* Cracks: procedural branching lines drawn into here by script.js,
+   confined to the bucket's own clip-path */
+#bucket-cracks {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.crack-line {
+    fill: none;
+    stroke: rgba(25, 20, 15, 0.8);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+}
+
+/* A new bucket wooshes up from offscreen, starting huge and settling to
+   normal size with a little overshoot */
+@keyframes bucketEnter {
+    0%   { transform: scale(2.4) translateY(260px); opacity: 0; }
+    55%  { opacity: 1; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+#bucket.entering {
+    animation: bucketEnter 650ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* A filled bucket shrinks up and away toward the bucket counter */
+@keyframes bucketExitSuccess {
+    0%   { transform: scale(1) translateY(0); opacity: 1; }
+    100% { transform: scale(0.15) translateY(-120px); opacity: 0; }
+}
+
+#bucket.exiting-success {
+    animation: bucketExitSuccess 420ms ease-in forwards;
+}
+
+/* A contaminated bucket lifts like it's being wound up for a throw, then
+   gets flung off to whichever side --fling-dir points */
+@keyframes bucketExitContaminated {
+    0%   { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+    20%  { transform: translate(0, -18px) rotate(calc(var(--fling-dir, 1) * -8deg)) scale(1); opacity: 1; }
+    100% { transform: translate(calc(var(--fling-dir, 1) * 420px), -40px) rotate(calc(var(--fling-dir, 1) * 70deg)) scale(0.2); opacity: 0; }
+}
+
+#bucket.exiting-contaminated {
+    animation: bucketExitContaminated 550ms ease-in forwards;
+}
+
+/* Three cracks and the bucket is done: a quick pulse then gone, with the
+   debris burst handled separately by script.js */
+@keyframes bucketExplode {
+    0%   { transform: scale(1); opacity: 1; }
+    30%  { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.3); opacity: 0; }
+}
+
+#bucket.exploding {
+    animation: bucketExplode 260ms ease-in forwards;
+}
+
 /* The water filter: a mesh sieve the bucket can bump and push around */
 #filter {
     position: absolute;
@@ -536,6 +599,8 @@ body.playing .stat {
 .splash-particle.clean-splash { background-color: #2E9DF7; color: #2E9DF7; }
 .splash-particle.clean-splash:nth-child(odd) { background-color: #8BD1CB; color: #8BD1CB; }
 .splash-particle.dirty-splash { background-color: #8a5a2b; color: #8a5a2b; }
+.splash-particle.debris-splash { background-color: #9a9a9a; color: #9a9a9a; }
+.splash-particle.debris-splash:nth-child(odd) { background-color: #4a4a4a; color: #4a4a4a; }
 
 /* Overlays for the start and game-over screens */
 .overlay {
