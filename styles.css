@@ -168,6 +168,23 @@ h1 {
         0 0 18px rgba(46, 157, 247, 0.5);
 }
 
+/* Each title letter bobs up and down in its own slow wave, split into
+   spans and given a randomized delay by script.js */
+.title-letter {
+    display: inline-block;
+    animation: titleWave 1.8s ease-in-out infinite;
+}
+
+@keyframes titleWave {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(calc(-1 * var(--bob-height, 6px))); }
+}
+
+body.playing .title-letter {
+    animation: none;
+    transform: translateY(0);
+}
+
 #tagline {
     position: relative;
     margin: 0;
@@ -231,15 +248,29 @@ h1 {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(224, 245, 255, 0.88) 100%);
     border: 1px solid rgba(255, 255, 255, 0.85);
     border-radius: 18px;
-    padding: 10px;
+    padding: 14px 10px;
     box-shadow:
         0 1px 0 rgba(255, 255, 255, 0.9) inset,
         0 8px 20px rgba(46, 157, 247, 0.22);
 }
 
+/* Delay, duration, and bob height are randomized per stat by script.js,
+   so the wave travels across the row unevenly instead of a uniform bounce */
 .stat {
     display: flex;
     flex-direction: column;
+    animation: statWave 1.4s ease-in-out infinite;
+}
+
+@keyframes statWave {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(calc(-1 * var(--bob-height, 10px))); }
+}
+
+/* The wave stops while a round is actually being played, so it doesn't
+   distract from the game itself */
+body.playing .stat {
+    animation: none;
 }
 
 .stat-label {
@@ -250,7 +281,7 @@ h1 {
 }
 
 #timer-display, #level-display, #buckets-display {
-    font-size: 1.4rem;
+    font-size: 1.75rem;
     font-weight: bold;
     color: #2E9DF7;
     text-shadow:
@@ -260,7 +291,7 @@ h1 {
 }
 
 #lives-display {
-    font-size: 1.2rem;
+    font-size: 1.75rem;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
@@ -288,10 +319,36 @@ h1 {
         0 0 40px rgba(46, 157, 247, 0.4),
         inset 0 3px 10px rgba(255, 255, 255, 0.35),
         inset 0 -22px 44px rgba(0, 0, 0, 0.15);
+    animation: areaWobble 7s ease-in-out infinite;
 }
 
 #game-area.playing {
     cursor: none;
+    animation: none;
+}
+
+/* A slow jelly-like wobble while nobody's playing */
+@keyframes areaWobble {
+    0%, 100% { border-radius: 20px; }
+    25%      { border-radius: 24px 16px 26px 14px / 16px 26px 14px 24px; }
+    50%      { border-radius: 14px 26px 16px 24px / 26px 14px 24px 16px; }
+    75%      { border-radius: 26px 14px 24px 16px / 14px 24px 16px 26px; }
+}
+
+/* A sharp, violent version triggered briefly whenever the bucket takes damage */
+#game-area.damaged {
+    animation: areaWobbleViolent 500ms ease-in-out;
+}
+
+@keyframes areaWobbleViolent {
+    0%   { border-radius: 20px; transform: translate(0, 0) rotate(0deg); }
+    10%  { border-radius: 32px 8px 36px 4px / 8px 32px 4px 36px; transform: translate(-5px, 4px) rotate(-1.3deg); }
+    25%  { border-radius: 4px 36px 8px 32px / 36px 4px 32px 8px; transform: translate(6px, -5px) rotate(1.5deg); }
+    40%  { border-radius: 36px 6px 30px 10px / 6px 36px 10px 30px; transform: translate(-6px, 3px) rotate(-1.1deg); }
+    55%  { border-radius: 8px 30px 6px 34px / 30px 8px 34px 6px; transform: translate(5px, -3px) rotate(1deg); }
+    70%  { border-radius: 28px 12px 26px 14px / 12px 28px 14px 26px; transform: translate(-3px, 2px) rotate(-0.6deg); }
+    85%  { border-radius: 16px 24px 18px 22px / 24px 16px 22px 18px; transform: translate(2px, -1px) rotate(0.3deg); }
+    100% { border-radius: 20px; transform: translate(0, 0) rotate(0deg); }
 }
 
 /* Two stacked river photos, crossfaded by script.js on every full bucket */
@@ -313,8 +370,9 @@ h1 {
     position: absolute;
     bottom: 10px;
     left: 50%;
-    width: 74px;
+    width: 52px;
     height: 70px;
+    transform-origin: 50% 0%;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
@@ -322,7 +380,7 @@ h1 {
     position: absolute;
     top: 0;
     left: 50%;
-    width: 46px;
+    width: 32px;
     height: 24px;
     border: 4px solid #8a5a2b;
     border-bottom: none;
@@ -478,6 +536,12 @@ h1 {
     display: none;
 }
 
+/* Generic hide, used for things like the name-entry form that aren't
+   themselves an .overlay */
+.hidden {
+    display: none;
+}
+
 .overlay h2 {
     color: #2E9DF7;
     margin: 0;
@@ -535,6 +599,12 @@ h1 {
     flex-direction: column;
     align-items: center;
     gap: 8px;
+}
+
+/* #name-entry's own display:flex above otherwise outranks the generic
+   .hidden rule on specificity, so it needs its own override here */
+#name-entry.hidden {
+    display: none;
 }
 
 #name-input {
@@ -624,6 +694,34 @@ button:active {
     filter: brightness(0.95);
 }
 
+/* Elastic squish-and-rotate settle on every click, ported from the main
+   mode switch in the FoxWizard web editor (itself adapted from Regime
+   Radar's liquid-slosh toggle) */
+@keyframes buttonClickWobble {
+    0%   { transform: scale(1) rotate(0deg); }
+    15%  { transform: scale(0.85, 1.25) rotate(-12deg); }
+    30%  { transform: scale(1.3, 0.75) rotate(8deg); }
+    45%  { transform: scale(0.8, 1.2) rotate(-6deg); }
+    60%  { transform: scale(1.15, 0.85) rotate(4deg); }
+    75%  { transform: scale(0.92, 1.08) rotate(-2deg); }
+    90%  { transform: scale(1.05, 0.95) rotate(1deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+button.click-wobble {
+    animation: buttonClickWobble 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Panels fade out instead of snapping away when a button inside them
+   makes them disappear */
+.overlay, #name-entry {
+    transition: opacity 260ms ease;
+}
+
+.fading-out {
+    opacity: 0;
+}
+
 #controls {
     display: flex;
     justify-content: center;
@@ -707,7 +805,7 @@ button:active {
     }
 
     #bucket {
-        width: 60px;
+        width: 42px;
         height: 58px;
     }
 

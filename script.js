@@ -113,8 +113,55 @@ function getAudioContext() {
     return audioContext;
 }
 
-// Plays a short beep. type is a waveform like 'sine', 'square', 'sawtooth', or 'triangle'.
-function playTone(frequency, duration, type) {
+// Water sounds are mostly noise shaped by filters, not clean tones, so this
+// builds a short burst of white noise to use as the raw material for
+// splashes, pours, and drains.
+function createNoiseBuffer(duration) {
+    const ctx = getAudioContext();
+    const sampleCount = Math.floor(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, sampleCount, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < sampleCount; i++) {
+        data[i] = (Math.random() * 2) - 1;
+    }
+
+    return buffer;
+}
+
+// Filtered noise swept from one cutoff frequency to another, for
+// splashes, pours, and drains
+function playWaterNoise(duration, filterType, freqStart, freqEnd, volume) {
+    if (!soundOn) {
+        return;
+    }
+
+    const ctx = getAudioContext();
+    const noiseSource = ctx.createBufferSource();
+    noiseSource.buffer = createNoiseBuffer(duration);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = filterType;
+    filter.Q.value = 6;
+    filter.frequency.setValueAtTime(freqStart, ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(freqEnd, ctx.currentTime + duration);
+
+    const gainNode = ctx.createGain();
+    gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+    noiseSource.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    noiseSource.start();
+    noiseSource.stop(ctx.currentTime + duration);
+}
+
+// A single droplet "plink": a sine tone that glides quickly between two
+// pitches, the classic water-drop shape, with a touch of echo so it sounds
+// like it's landing in a pool rather than beeping in open air
+function playWaterDrop(startFrequency, endFrequency, duration) {
     if (!soundOn) {
         return;
     }
@@ -123,8 +170,50 @@ function playTone(frequency, duration, type) {
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
 
-    oscillator.type = type;
-    oscillator.frequency.value = frequency;
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(startFrequency, ctx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(endFrequency, ctx.currentTime + duration);
+
+    gainNode.gain.setValueAtTime(0.25, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+    const delay = ctx.createDelay();
+    delay.delayTime.value = 0.09;
+    const delayGain = ctx.createGain();
+    delayGain.gain.value = 0.25;
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    gainNode.connect(delay);
+    delay.connect(delayGain);
+    delayGain.connect(ctx.destination);
+
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + duration);
+}
+
+// A quick bubble "pop": pitch rises instead of falling, like a bubble
+// breaking the surface, with a fast shallow wobble for a liquid shimmer
+function playBubble(frequency, duration) {
+    if (!soundOn) {
+        return;
+    }
+
+    const ctx = getAudioContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency * 0.6, ctx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency, ctx.currentTime + duration);
+
+    const vibrato = ctx.createOscillator();
+    const vibratoGain = ctx.createGain();
+    vibrato.frequency.value = 18;
+    vibratoGain.gain.value = frequency * 0.04;
+    vibrato.connect(vibratoGain);
+    vibratoGain.connect(oscillator.frequency);
+
     gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
 
@@ -132,43 +221,52 @@ function playTone(frequency, duration, type) {
     gainNode.connect(ctx.destination);
 
     oscillator.start();
+    vibrato.start();
     oscillator.stop(ctx.currentTime + duration);
+    vibrato.stop(ctx.currentTime + duration);
 }
 
+// The pop-like catch and filter sounds stay as simple droplet/bubble
+// shapes; the murkier ones below get a noise-based splash layered in
 function playCatchCleanSound() {
-    playTone(660, 0.15, 'sine');
+    playWaterDrop(1100, 500, 0.18);
 }
 
 function playCatchDirtySound() {
-    playTone(160, 0.25, 'sawtooth');
+    playWaterNoise(0.3, 'lowpass', 500, 90, 0.3);
+    playWaterDrop(260, 120, 0.22);
 }
 
 function playFilterPingSound() {
-    playTone(880, 0.1, 'triangle');
+    playBubble(760, 0.14);
 }
 
 function playLevelUpSound() {
-    playTone(440, 0.1, 'square');
+    playWaterDrop(700, 1000, 0.12);
     setTimeout(function () {
-        playTone(660, 0.15, 'square');
-    }, 100);
+        playWaterDrop(900, 1300, 0.14);
+    }, 90);
+    setTimeout(function () {
+        playBubble(1500, 0.16);
+    }, 180);
 }
 
 function playBucketCompleteSound() {
-    playTone(523, 0.12, 'sine');
+    playWaterNoise(0.4, 'bandpass', 1800, 400, 0.22);
     setTimeout(function () {
-        playTone(659, 0.12, 'sine');
-    }, 120);
+        playWaterDrop(700, 1100, 0.14);
+    }, 60);
     setTimeout(function () {
-        playTone(784, 0.2, 'sine');
-    }, 240);
+        playWaterDrop(850, 1300, 0.14);
+    }, 160);
+    setTimeout(function () {
+        playWaterDrop(1000, 1600, 0.18);
+    }, 260);
 }
 
 function playGameOverSound() {
-    playTone(300, 0.2, 'sawtooth');
-    setTimeout(function () {
-        playTone(200, 0.3, 'sawtooth');
-    }, 150);
+    playWaterNoise(0.9, 'lowpass', 900, 80, 0.3);
+    playWaterDrop(500, 150, 0.4);
 }
 
 function updateSoundButton() {
@@ -189,7 +287,7 @@ soundToggleBtn.addEventListener('click', function () {
     updateSoundButton();
 
     if (soundOn) {
-        playTone(880, 0.08, 'sine');
+        playWaterDrop(900, 1300, 0.09);
     }
 });
 
@@ -197,8 +295,7 @@ updateSoundButton();
 
 // --- Bucket movement ----------------------------------------------------
 
-// The bucket can roam the full width, but only the lower part of the height,
-// so it still feels like you're catching things falling from above.
+// The bucket can roam the full width and height of the play area
 function getBucketBounds() {
     const areaWidth = gameArea.clientWidth;
     const areaHeight = gameArea.clientHeight;
@@ -208,7 +305,7 @@ function getBucketBounds() {
     return {
         minX: 0,
         maxX: areaWidth - bucketWidth,
-        minY: areaHeight * 0.4,
+        minY: 0,
         maxY: areaHeight - bucketHeight - 6
     };
 }
@@ -391,6 +488,18 @@ function jamBucket() {
     }, 1000);
 }
 
+// Gives the whole play area a sharp, violent wobble whenever the bucket
+// takes damage
+function triggerAreaWobble() {
+    gameArea.classList.remove('damaged');
+    void gameArea.offsetWidth; // force a reflow so the animation restarts
+    gameArea.classList.add('damaged');
+
+    setTimeout(function () {
+        gameArea.classList.remove('damaged');
+    }, 500);
+}
+
 // --- Score, lives, level, and the bucket-filling mechanic ---------------
 
 // Briefly pops a stat number to draw the eye to it when it changes
@@ -399,6 +508,39 @@ function popStat(element) {
     setTimeout(function () {
         element.classList.remove('stat-pop');
     }, 150);
+}
+
+// Tracks each panel's pending fade-out timeout, so a show call can cancel
+// it if the panel gets re-shown before the fade finishes
+const pendingFadeTimeouts = new WeakMap();
+
+// Fades a panel out instead of snapping it straight to display:none
+function hideWithFade(element) {
+    const existingTimeout = pendingFadeTimeouts.get(element);
+    if (existingTimeout) {
+        clearTimeout(existingTimeout);
+    }
+
+    element.classList.add('fading-out');
+    const timeoutId = setTimeout(function () {
+        element.classList.remove('fading-out');
+        element.classList.add('hidden');
+        pendingFadeTimeouts.delete(element);
+    }, 260);
+
+    pendingFadeTimeouts.set(element, timeoutId);
+}
+
+// Shows a panel right away, cancelling any fade-out still in flight so it
+// can't sneak in and hide the panel again a moment later
+function showInstantly(element) {
+    const existingTimeout = pendingFadeTimeouts.get(element);
+    if (existingTimeout) {
+        clearTimeout(existingTimeout);
+        pendingFadeTimeouts.delete(element);
+    }
+
+    element.classList.remove('hidden', 'fading-out');
 }
 
 // Score itself is no longer shown. It still climbs in the background purely
@@ -492,12 +634,14 @@ function handleCatch(dropInfo) {
     } else if (dropInfo.type === 'dirty') {
         loseLife();
         spillBucket();
+        triggerAreaWobble();
         launchSplash(dropX, dropY, 'dirty-splash', 7);
         playCatchDirtySound();
     } else if (dropInfo.type === 'obstacle') {
         loseLife();
         spillBucket();
         jamBucket();
+        triggerAreaWobble();
         launchSplash(dropX, dropY, 'dirty-splash', 9);
         playCatchDirtySound();
     }
@@ -667,10 +811,11 @@ function startGame() {
     clearDrops();
     bucket.classList.remove('jammed');
     gameArea.classList.add('playing');
-    startScreen.classList.add('hidden');
-    gameOverScreen.classList.add('hidden');
-    pauseScreen.classList.add('hidden');
-    nameEntry.classList.add('hidden');
+    document.body.classList.add('playing');
+    hideWithFade(startScreen);
+    hideWithFade(gameOverScreen);
+    hideWithFade(pauseScreen);
+    hideWithFade(nameEntry);
     nameInput.value = '';
 
     // Place the bucket at the bottom-center of its allowed range
@@ -702,6 +847,7 @@ function endGame() {
     clearInterval(gameLoopId);
     clearDrops();
     gameArea.classList.remove('playing');
+    document.body.classList.remove('playing');
 
     const bpm = computeBucketsPerMinute();
 
@@ -717,14 +863,14 @@ function endGame() {
     renderLeaderboard(gameOverLeaderboardList, loadLeaderboard());
 
     if (qualifiesForLeaderboard(bpm)) {
-        nameEntry.classList.remove('hidden');
+        showInstantly(nameEntry);
         launchConfetti(40);
     } else {
         nameEntry.classList.add('hidden');
     }
 
     playGameOverSound();
-    gameOverScreen.classList.remove('hidden');
+    showInstantly(gameOverScreen);
 }
 
 // Reset everything back to the start screen, no matter where the player is
@@ -749,9 +895,10 @@ function resetGame() {
     bucketFillElement.style.height = '0%';
 
     gameArea.classList.remove('playing');
-    gameOverScreen.classList.add('hidden');
-    pauseScreen.classList.add('hidden');
-    startScreen.classList.remove('hidden');
+    document.body.classList.remove('playing');
+    hideWithFade(gameOverScreen);
+    hideWithFade(pauseScreen);
+    showInstantly(startScreen);
     renderLeaderboard(startLeaderboardList, loadLeaderboard());
 }
 
@@ -765,7 +912,8 @@ function pauseGame() {
     clearInterval(spawnTimerId);
     clearInterval(gameLoopId);
     gameArea.classList.remove('playing');
-    pauseScreen.classList.remove('hidden');
+    document.body.classList.remove('playing');
+    showInstantly(pauseScreen);
 }
 
 // Picks back up right where the game left off
@@ -776,7 +924,8 @@ function resumeGame() {
 
     gamePaused = false;
     gameArea.classList.add('playing');
-    pauseScreen.classList.add('hidden');
+    document.body.classList.add('playing');
+    hideWithFade(pauseScreen);
     restartSpawnTimer();
     gameLoopId = setInterval(gameLoop, 20);
 }
@@ -879,8 +1028,74 @@ saveNameBtn.addEventListener('click', function () {
     const updatedEntries = addLeaderboardEntry(name, bpm);
 
     renderLeaderboard(gameOverLeaderboardList, updatedEntries);
-    nameEntry.classList.add('hidden');
+    hideWithFade(nameEntry);
 });
 
 // Show whatever scoreboard already exists as soon as the page loads
 renderLeaderboard(startLeaderboardList, loadLeaderboard());
+
+// Give every button an elastic click-wobble, no matter where it's added
+document.addEventListener('click', function (event) {
+    const clickedButton = event.target.closest('button');
+    if (!clickedButton) {
+        return;
+    }
+
+    clickedButton.classList.remove('click-wobble');
+    void clickedButton.offsetWidth; // restart the animation even on rapid clicks
+    clickedButton.classList.add('click-wobble');
+
+    setTimeout(function () {
+        clickedButton.classList.remove('click-wobble');
+    }, 1400);
+});
+
+// Splits the title into letters so each can bob on its own wobble delay
+function splitTitleIntoLetters() {
+    const titleEl = document.getElementById('title');
+    if (!titleEl) {
+        return;
+    }
+
+    const text = titleEl.textContent;
+    titleEl.textContent = '';
+
+    for (let i = 0; i < text.length; i++) {
+        const letter = text[i];
+        const span = document.createElement('span');
+        span.className = 'title-letter';
+        span.textContent = letter === ' ' ? ' ' : letter;
+
+        const baseDelay = i * 0.08;
+        const randomJitter = (Math.random() * 0.36) - 0.18;
+        const duration = 1.5 + (Math.random() * 1.0);
+        const bobHeight = 5 + (Math.random() * 7);
+
+        span.style.animationDelay = `${(baseDelay + randomJitter).toFixed(2)}s`;
+        span.style.animationDuration = `${duration.toFixed(2)}s`;
+        span.style.setProperty('--bob-height', `${bobHeight.toFixed(1)}px`);
+
+        titleEl.appendChild(span);
+    }
+}
+
+splitTitleIntoLetters();
+
+// Gives each stat its own randomized delay, speed, and bob height so the
+// wave across Buckets/Time/Lives/Level reads as organic, not mechanical
+function randomizeStatWave() {
+    const stats = document.querySelectorAll('#stats-bar .stat');
+
+    for (let i = 0; i < stats.length; i++) {
+        const baseDelay = i * 0.15;
+        const randomJitter = (Math.random() * 0.3) - 0.15;
+        const duration = 1.2 + (Math.random() * 0.8);
+        const bobHeight = 7 + (Math.random() * 8);
+
+        stats[i].style.animationDelay = `${(baseDelay + randomJitter).toFixed(2)}s`;
+        stats[i].style.animationDuration = `${duration.toFixed(2)}s`;
+        stats[i].style.setProperty('--bob-height', `${bobHeight.toFixed(1)}px`);
+    }
+}
+
+randomizeStatWave();
