@@ -706,18 +706,50 @@ body.playing .stat {
 /* A banana peel: three curled strips splayed from a center point */
 .drop.obstacle.obstacle-banana {
     border-radius: 0;
+    /* No border: the shared hazard border wraps the full square box, and
+       since this shape's petal tips come close to that box edge at only
+       a few points, the border bunched up into solid caps instead of a
+       clean outline. The glow still reads as a hazard without it. */
+    border: none;
     background:
-        radial-gradient(circle 1.6px at 46% 58%, rgba(90, 60, 20, 0.7) 90%, transparent 95%),
-        radial-gradient(circle 1.4px at 59% 47%, rgba(90, 60, 20, 0.7) 90%, transparent 95%),
-        linear-gradient(135deg, #ffe066 0%, #ffd23f 45%, #e6b800 75%, #b88a00 100%);
+        radial-gradient(circle 2px at 50% 50%, #6e4a1f 0%, #6e4a1f 60%, transparent 70%),
+        radial-gradient(circle 1.4px at 40% 65%, rgba(110, 74, 31, 0.6) 90%, transparent 95%),
+        radial-gradient(circle 1.4px at 68% 62%, rgba(110, 74, 31, 0.6) 90%, transparent 95%),
+        linear-gradient(135deg, #fff1b8 0%, #ffe066 35%, #ffd23f 65%, #e6b800 100%);
+    /* Three wide, rounded strips peeled back from a center point, the
+       classic banana-peel silhouette instead of pointed star petals */
     clip-path: polygon(
-        50% 50%,
-        58% 16%, 67% 8%, 76% 15%, 69% 30%, 57% 47%,
-        50% 50%,
-        83% 57%, 94% 61%, 95% 72%, 84% 77%, 65% 61%,
-        50% 50%,
-        33% 80%, 22% 91%, 12% 86%, 17% 73%, 38% 57%,
-        50% 50%
+        50.0% 50.0%,
+        43.0% 36.0%,
+        37.0% 22.0%,
+        37.0% 10.0%,
+        44.0% 3.0%,
+        50.0% 1.0%,
+        56.0% 3.0%,
+        63.0% 10.0%,
+        63.0% 22.0%,
+        57.0% 36.0%,
+        50.0% 50.0%,
+        65.6% 50.9%,
+        80.7% 52.7%,
+        91.1% 58.7%,
+        93.7% 68.3%,
+        92.4% 74.5%,
+        87.7% 78.7%,
+        78.1% 81.3%,
+        67.7% 75.3%,
+        58.6% 63.1%,
+        50.0% 50.0%,
+        41.4% 63.1%,
+        32.3% 75.3%,
+        21.9% 81.3%,
+        12.3% 78.7%,
+        7.6% 74.5%,
+        6.3% 68.3%,
+        8.9% 58.7%,
+        19.3% 52.7%,
+        34.4% 50.9%,
+        50.0% 50.0%
     );
 }
 
@@ -756,23 +788,29 @@ body.playing .stat {
     border: 2px solid #5a3a18;
 }
 
-/* A screw: a slotted head over a threaded, tapered shaft */
+/* A screw: a metal shaft with horizontal thread rings (not diagonal
+   hatching, which read as feather barbs) and a slotted head */
 .drop.obstacle.obstacle-screw {
     border-radius: 0;
-    clip-path: polygon(32% 14%, 68% 14%, 68% 70%, 50% 100%, 32% 70%);
+    clip-path: polygon(28% 0%, 72% 0%, 72% 62%, 50% 100%, 28% 62%);
     background:
-        linear-gradient(90deg, transparent 47%, #222 48%, #222 52%, transparent 53%),
-        repeating-linear-gradient(55deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 6px),
-        linear-gradient(180deg, #e2e2e2 0%, #e2e2e2 18%, #aeaeae 20% 55%, #777 100%);
+        linear-gradient(90deg, transparent 42%, #1a1a1a 44%, #1a1a1a 56%, transparent 58%) 0 6% / 100% 12% no-repeat,
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0 2px, transparent 2px 5px),
+        linear-gradient(90deg, #8a8f94 0%, #d8dcdf 35%, #b0b5b9 55%, #6d7275 100%);
 }
 
-/* A juice box: a bright carton with a label stripe and a bent straw */
+/* A juice box: a carton silhouette with an actual straw tab sticking out
+   the top (via clip-path, not just a line) and a label stripe */
 .drop.obstacle.obstacle-juicebox {
-    border-radius: 2px;
+    border-radius: 0;
+    clip-path: polygon(
+        0% 18%, 60% 18%, 60% 2%, 76% 2%, 76% 18%,
+        100% 18%, 100% 100%, 0% 100%
+    );
     background:
-        linear-gradient(200deg, transparent 0% 46%, #cfcfcf 46% 50%, transparent 50% 100%),
-        linear-gradient(0deg, rgba(255, 255, 255, 0.3) 0% 15%, transparent 15% 100%),
-        linear-gradient(180deg, #FF902A 0%, #F5402C 55%, #c23325 100%);
+        linear-gradient(0deg, rgba(255, 255, 255, 0.4) 18% 34%, transparent 34% 100%),
+        linear-gradient(200deg, transparent 60%, rgba(0, 0, 0, 0.15) 62%, transparent 64%),
+        linear-gradient(180deg, #FF902A 0%, #F5402C 60%, #c23325 100%);
     border: 2px solid #a82b1d;
 }
 

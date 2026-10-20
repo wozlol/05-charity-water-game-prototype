@@ -829,7 +829,11 @@ function crackBucket() {
     addCrackVisual(bucketCracks);
 
     if (bucketCracks >= 3) {
+        // A life is only lost once the bucket is actually gone, same as
+        // a contaminated bucket losing a life right away. The first two
+        // cracks just damage it.
         explodeBucket();
+        loseLife();
     }
 }
 
@@ -1039,7 +1043,6 @@ function handleCatch(dropInfo) {
         exitBucketContaminated();
         playCatchDirtySound();
     } else if (dropInfo.type === 'obstacle') {
-        loseLife();
         spillBucket();
         jamBucket();
         triggerAreaWobble();
