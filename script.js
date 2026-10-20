@@ -6,16 +6,21 @@ const gameArea = document.getElementById('game-area');
 const bucket = document.getElementById('bucket');
 const bucketFillElement = document.getElementById('bucket-fill');
 const filterElement = document.getElementById('filter');
-const scoreDisplay = document.getElementById('score-display');
 const livesDisplay = document.getElementById('lives-display');
 const bucketsDisplay = document.getElementById('buckets-display');
 const levelDisplay = document.getElementById('level-display');
+const timerDisplay = document.getElementById('timer-display');
 const startScreen = document.getElementById('start-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
-const finalScoreText = document.getElementById('final-score');
 const finalBucketsText = document.getElementById('final-buckets');
+const finalTimeText = document.getElementById('final-time');
+const finalRateText = document.getElementById('final-rate');
 const collectionRateText = document.getElementById('collection-rate');
-const highScoreMessage = document.getElementById('high-score-message');
+const nameEntry = document.getElementById('name-entry');
+const nameInput = document.getElementById('name-input');
+const saveNameBtn = document.getElementById('save-name-btn');
+const startLeaderboardList = document.getElementById('start-leaderboard-list');
+const gameOverLeaderboardList = document.getElementById('game-over-leaderboard-list');
 const startBtn = document.getElementById('start-btn');
 const playAgainBtn = document.getElementById('play-again-btn');
 const resetBtn = document.getElementById('reset-btn');
@@ -56,6 +61,17 @@ let activeDrops = [];
 // Bucket-filling state
 let bucketFill = 0;
 let bucketsCompleted = 0;
+
+// How long the current run has been going, counted up in the game loop so
+// it naturally freezes whenever the loop is paused or stopped
+let elapsedMs = 0;
+let lastDisplayedSecond = -1;
+
+// The smallest a run is allowed to be before it can rank on the scoreboard,
+// so one lucky early bucket can't fake an absurd buckets-per-minute rate
+const MIN_RANKED_MS = 10000;
+const LEADERBOARD_KEY = 'bucketMasterLeaderboard';
+const LEADERBOARD_SIZE = 10;
 
 // Bucket velocity, tracked each tick so we can push the filter realistically
 let lastBucketX = 0;
@@ -385,10 +401,10 @@ function popStat(element) {
     }, 150);
 }
 
+// Score itself is no longer shown. It still climbs in the background purely
+// to drive the level-up pacing below; buckets-per-minute is the real metric.
 function addScore(points) {
     score = score + points;
-    scoreDisplay.textContent = score;
-    popStat(scoreDisplay);
 
     if (score >= nextLevelScore) {
         level = level + 1;
@@ -487,11 +503,96 @@ function handleCatch(dropInfo) {
     }
 }
 
+// --- Timer -------------------------------------------------------------
+
+// Turns a millisecond count into an "m:ss" string
+function formatTime(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+}
+
+// Only touches the DOM when the displayed second actually changes
+function updateTimerDisplay() {
+    const currentSecond = Math.floor(elapsedMs / 1000);
+    if (currentSecond !== lastDisplayedSecond) {
+        lastDisplayedSecond = currentSecond;
+        timerDisplay.textContent = formatTime(elapsedMs);
+    }
+}
+
+// --- Scoreboard (buckets per minute) ------------------------------------
+
+function computeBucketsPerMinute() {
+    const minutes = elapsedMs / 60000;
+    return minutes > 0 ? bucketsCompleted / minutes : 0;
+}
+
+function loadLeaderboard() {
+    const stored = localStorage.getItem(LEADERBOARD_KEY);
+    return stored ? JSON.parse(stored) : [];
+}
+
+function saveLeaderboard(entries) {
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
+}
+
+// A run only gets a name prompt if it would actually crack the list
+function qualifiesForLeaderboard(bpm) {
+    if (elapsedMs < MIN_RANKED_MS || bucketsCompleted <= 0) {
+        return false;
+    }
+
+    const entries = loadLeaderboard();
+    return entries.length < LEADERBOARD_SIZE || bpm > entries[entries.length - 1].bpm;
+}
+
+function addLeaderboardEntry(name, bpm) {
+    const entries = loadLeaderboard();
+    entries.push({
+        name: name,
+        bpm: bpm,
+        buckets: bucketsCompleted,
+        timeSeconds: Math.floor(elapsedMs / 1000)
+    });
+
+    entries.sort(function (a, b) {
+        return b.bpm - a.bpm;
+    });
+
+    const trimmed = entries.slice(0, LEADERBOARD_SIZE);
+    saveLeaderboard(trimmed);
+    return trimmed;
+}
+
+function renderLeaderboard(listElement, entries) {
+    listElement.innerHTML = '';
+
+    if (entries.length === 0) {
+        const emptyItem = document.createElement('li');
+        emptyItem.classList.add('empty');
+        emptyItem.textContent = 'No runs yet. Be the first!';
+        listElement.appendChild(emptyItem);
+        return;
+    }
+
+    for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        const item = document.createElement('li');
+        item.textContent = `${entry.name} — ${entry.bpm.toFixed(1)} buckets/min (${entry.buckets} in ${formatTime(entry.timeSeconds * 1000)})`;
+        listElement.appendChild(item);
+    }
+}
+
 // --- Main game loop ----------------------------------------------------
 
 // Runs every tick: moves drops, updates the filter's physics, and checks
 // every collision (bucket-filter, drop-filter, drop-bucket, drop-miss).
 function gameLoop() {
+    elapsedMs = elapsedMs + 20;
+    updateTimerDisplay();
+
     updateBucketVelocity();
     updateFilterPhysics();
     checkBucketFilterCollision();
@@ -553,11 +654,13 @@ function startGame() {
     bucketFill = 0;
     bucketsCompleted = 0;
     gamePaused = false;
+    elapsedMs = 0;
+    lastDisplayedSecond = -1;
 
-    scoreDisplay.textContent = score;
     livesDisplay.textContent = '💧💧💧';
     levelDisplay.textContent = level;
     bucketsDisplay.textContent = bucketsCompleted;
+    timerDisplay.textContent = '0:00';
     bucketFillElement.style.height = '0%';
     setInitialRiver();
 
@@ -567,6 +670,8 @@ function startGame() {
     startScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
     pauseScreen.classList.add('hidden');
+    nameEntry.classList.add('hidden');
+    nameInput.value = '';
 
     // Place the bucket at the bottom-center of its allowed range
     const bounds = getBucketBounds();
@@ -598,22 +703,24 @@ function endGame() {
     clearDrops();
     gameArea.classList.remove('playing');
 
-    finalScoreText.textContent = `Final score: ${score}`;
+    const bpm = computeBucketsPerMinute();
+
     finalBucketsText.textContent = `Buckets filled: ${bucketsCompleted}`;
+    finalTimeText.textContent = `Time played: ${formatTime(elapsedMs)}`;
+    finalRateText.textContent = `Rate: ${bpm.toFixed(1)} buckets/min`;
 
     const collectionRate = cleanDropsSpawned > 0
         ? Math.round((cleanDropsCaught / cleanDropsSpawned) * 100)
         : 0;
     collectionRateText.textContent = `Clean water collected: ${collectionRate}%`;
 
-    const storedHighScore = Number(localStorage.getItem('bucketMasterHighScore')) || 0;
+    renderLeaderboard(gameOverLeaderboardList, loadLeaderboard());
 
-    if (score > storedHighScore) {
-        localStorage.setItem('bucketMasterHighScore', score);
-        highScoreMessage.textContent = 'New high score!';
+    if (qualifiesForLeaderboard(bpm)) {
+        nameEntry.classList.remove('hidden');
         launchConfetti(40);
     } else {
-        highScoreMessage.textContent = `High score: ${storedHighScore}`;
+        nameEntry.classList.add('hidden');
     }
 
     playGameOverSound();
@@ -633,16 +740,19 @@ function resetGame() {
     bucketFill = 0;
     bucketsCompleted = 0;
     gamePaused = false;
-    scoreDisplay.textContent = score;
+    elapsedMs = 0;
+    lastDisplayedSecond = -1;
     livesDisplay.textContent = '💧💧💧';
     levelDisplay.textContent = level;
     bucketsDisplay.textContent = bucketsCompleted;
+    timerDisplay.textContent = '0:00';
     bucketFillElement.style.height = '0%';
 
     gameArea.classList.remove('playing');
     gameOverScreen.classList.add('hidden');
     pauseScreen.classList.add('hidden');
     startScreen.classList.remove('hidden');
+    renderLeaderboard(startLeaderboardList, loadLeaderboard());
 }
 
 // Freezes the game in place, without losing any progress
@@ -762,3 +872,15 @@ playAgainBtn.addEventListener('click', startGame);
 resetBtn.addEventListener('click', resetGame);
 pauseBtn.addEventListener('click', pauseGame);
 resumeBtn.addEventListener('click', resumeGame);
+
+saveNameBtn.addEventListener('click', function () {
+    const name = nameInput.value.trim() || 'Anonymous';
+    const bpm = computeBucketsPerMinute();
+    const updatedEntries = addLeaderboardEntry(name, bpm);
+
+    renderLeaderboard(gameOverLeaderboardList, updatedEntries);
+    nameEntry.classList.add('hidden');
+});
+
+// Show whatever scoreboard already exists as soon as the page loads
+renderLeaderboard(startLeaderboardList, loadLeaderboard());

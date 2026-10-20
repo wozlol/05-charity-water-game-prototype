@@ -21,7 +21,9 @@ Secondary Colors:
 body {
     font-family: Arial, Helvetica, sans-serif;
     text-align: center;
-    background: linear-gradient(180deg, #2E9DF7 0%, #8BD1CB 60%, #eaf8fb 100%);
+    background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%),
+        linear-gradient(180deg, #2E9DF7 0%, #8BD1CB 60%, #eaf8fb 100%);
     background-attachment: fixed;
     margin: 0;
     padding: 20px 10px 40px;
@@ -48,6 +50,17 @@ body {
 .sky-cloud-two { width: 320px; height: 184px; top: 60%; left: 0; fill: rgba(255, 255, 255, 0.55); opacity: 0; animation: cloudDrift2 34s linear -12s infinite; }
 .sky-cloud-three { width: 260px; height: 150px; top: 32%; left: 0; fill: rgba(255, 255, 255, 0.45); opacity: 0; animation: cloudDrift3 30s linear -20s infinite; }
 
+/* Each cloud's shape slowly stretches wider and contracts again, at an
+   uneven pace so the three clouds never sync up and it reads as random */
+.sky-cloud path {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.sky-cloud-one path { animation: cloudStretch1 25s ease-in-out 0s infinite; }
+.sky-cloud-two path { animation: cloudStretch2 31s ease-in-out -9s infinite; }
+.sky-cloud-three path { animation: cloudStretch3 21s ease-in-out -14s infinite; }
+
 @keyframes cloudDrift1 {
     0%   { transform: translate3d(115vw, 0, 0); opacity: 0; }
     8%   { opacity: 1; }
@@ -69,8 +82,35 @@ body {
     100% { transform: translate3d(-35vw, 0, 0); opacity: 0; }
 }
 
+@keyframes cloudStretch1 {
+    0%   { transform: scaleX(1); }
+    17%  { transform: scaleX(1.3); }
+    38%  { transform: scaleX(0.88); }
+    60%  { transform: scaleX(1.45); }
+    83%  { transform: scaleX(0.95); }
+    100% { transform: scaleX(1); }
+}
+
+@keyframes cloudStretch2 {
+    0%   { transform: scaleX(1); }
+    22%  { transform: scaleX(0.82); }
+    47%  { transform: scaleX(1.4); }
+    68%  { transform: scaleX(1.05); }
+    90%  { transform: scaleX(1.25); }
+    100% { transform: scaleX(1); }
+}
+
+@keyframes cloudStretch3 {
+    0%   { transform: scaleX(1); }
+    13%  { transform: scaleX(1.2); }
+    35%  { transform: scaleX(1.35); }
+    55%  { transform: scaleX(0.8); }
+    78%  { transform: scaleX(1.15); }
+    100% { transform: scaleX(1); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .sky-cloud { animation: none; opacity: 0.6; }
+    .sky-cloud, .sky-cloud path { animation: none; opacity: 0.6; }
 }
 
 /* Everything else sits above the sky and clouds */
@@ -79,64 +119,121 @@ header, #stats-bar, #game-area, #controls, #confetti-layer {
     z-index: 1;
 }
 
+/* Glassy, glowing header panel with a soft light-leak highlight across the top */
 header {
     position: relative;
     margin-bottom: 15px;
-    background-color: rgba(255, 255, 255, 0.92);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(235, 248, 255, 0.92) 55%, rgba(210, 238, 255, 0.88) 100%);
     max-width: 500px;
     margin-left: auto;
     margin-right: auto;
-    border-radius: 10px;
-    padding: 14px 10px 10px;
+    border-radius: 22px;
+    padding: 16px 12px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 10px 26px rgba(46, 157, 247, 0.28),
+        0 0 0 1px rgba(46, 157, 247, 0.12);
+    overflow: hidden;
+}
+
+header::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 8%;
+    width: 84%;
+    height: 48%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0));
+    border-radius: 50%;
+    pointer-events: none;
 }
 
 #logo {
+    position: relative;
     max-width: 220px;
     margin-bottom: 5px;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.18));
 }
 
 h1 {
+    position: relative;
     margin: 5px 0;
     color: #2E9DF7;
+    letter-spacing: 0.5px;
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.85),
+        0 2px 5px rgba(46, 157, 247, 0.35),
+        0 0 18px rgba(46, 157, 247, 0.5);
 }
 
 #tagline {
+    position: relative;
     margin: 0;
     font-size: 0.95rem;
 }
 
-/* Mute/unmute button, pinned to the header's corner */
+/* Mute/unmute button: a shiny glass orb pinned to the header's corner */
 #sound-toggle {
     position: absolute;
     top: 10px;
     right: 10px;
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     padding: 0;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     line-height: 1;
     border-radius: 50%;
-    background-color: #8BD1CB;
+    background: radial-gradient(circle at 35% 28%, #eafffc 0%, #8BD1CB 50%, #3f9188 100%);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.85) inset,
+        0 -5px 8px rgba(0, 0, 0, 0.2) inset,
+        0 3px 8px rgba(0, 0, 0, 0.3),
+        0 0 14px rgba(139, 209, 203, 0.7);
+    transition: filter 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+    overflow: hidden;
+}
+
+#sound-toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 18%;
+    width: 64%;
+    height: 38%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+    border-radius: 50%;
+    pointer-events: none;
 }
 
 #sound-toggle:hover {
-    background-color: #2E9DF7;
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 -5px 8px rgba(0, 0, 0, 0.2) inset,
+        0 4px 10px rgba(0, 0, 0, 0.32),
+        0 0 20px rgba(139, 209, 203, 0.9);
 }
 
 #sound-toggle.muted {
-    background-color: #ccc;
+    background: radial-gradient(circle at 35% 28%, #fbfbfb 0%, #cfcfcf 50%, #8d8d8d 100%);
 }
 
-/* Stats bar above the game area */
+/* Stats bar above the game area: same glassy, embossed treatment */
 #stats-bar {
     display: flex;
     justify-content: center;
     gap: 20px;
     max-width: 500px;
     margin: 15px auto;
-    background-color: white;
-    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(224, 245, 255, 0.88) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 18px;
     padding: 10px;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 8px 20px rgba(46, 157, 247, 0.22);
 }
 
 .stat {
@@ -148,24 +245,29 @@ h1 {
     font-size: 0.75rem;
     text-transform: uppercase;
     color: #555;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 #score-display, #level-display, #buckets-display {
     font-size: 1.4rem;
     font-weight: bold;
     color: #2E9DF7;
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.85),
+        0 0 10px rgba(46, 157, 247, 0.5);
     transition: transform 150ms ease;
 }
 
 #lives-display {
     font-size: 1.2rem;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 .stat-pop {
     transform: scale(1.4);
 }
 
-/* The playable area */
+/* The playable area, framed like a glossy chrome window */
 #game-area {
     position: relative;
     width: 100%;
@@ -174,10 +276,17 @@ h1 {
     max-height: 520px;
     margin: 0 auto;
     background-color: #8BD1CB;
-    border: 4px solid #2E9DF7;
-    border-radius: 10px;
+    border: 5px solid #2E9DF7;
+    border-radius: 20px;
     overflow: hidden;
     touch-action: none;
+    box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 0.55),
+        0 0 0 6px rgba(46, 157, 247, 0.3),
+        0 14px 30px rgba(14, 70, 120, 0.4),
+        0 0 40px rgba(46, 157, 247, 0.4),
+        inset 0 3px 10px rgba(255, 255, 255, 0.35),
+        inset 0 -22px 44px rgba(0, 0, 0, 0.15);
 }
 
 #game-area.playing {
@@ -205,6 +314,7 @@ h1 {
     left: 50%;
     width: 74px;
     height: 70px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
 .bucket-handle {
@@ -217,6 +327,7 @@ h1 {
     border-bottom: none;
     border-radius: 50% 50% 0 0;
     transform: translateX(-50%);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset;
 }
 
 .bucket-body {
@@ -225,10 +336,13 @@ h1 {
     left: 0;
     width: 100%;
     height: 56px;
-    background: linear-gradient(180deg, #d7dee1 0%, #aab4ba 100%);
+    background: linear-gradient(180deg, #eef2f3 0%, #d7dee1 35%, #aab4ba 100%);
     border: 3px solid #FF902A;
     clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 10% 100%);
     overflow: hidden;
+    box-shadow:
+        inset 0 4px 6px rgba(255, 255, 255, 0.6),
+        inset 0 -8px 12px rgba(0, 0, 0, 0.2);
 }
 
 #bucket-fill {
@@ -237,7 +351,8 @@ h1 {
     left: 0;
     width: 100%;
     height: 0%;
-    background: linear-gradient(180deg, #8BD1CB 0%, #2E9DF7 100%);
+    background: linear-gradient(180deg, #a9e6e0 0%, #8BD1CB 40%, #2E9DF7 100%);
+    box-shadow: 0 0 14px rgba(46, 157, 247, 0.65) inset;
     transition: height 250ms ease;
 }
 
@@ -268,11 +383,17 @@ h1 {
     background-image:
         repeating-linear-gradient(0deg, #8BD1CB 0 2px, transparent 2px 8px),
         repeating-linear-gradient(90deg, #8BD1CB 0 2px, transparent 2px 8px);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.7) inset,
+        0 3px 8px rgba(0, 0, 0, 0.25),
+        0 0 12px rgba(46, 157, 247, 0.45);
     transition: box-shadow 150ms ease;
 }
 
 #filter.bumped {
-    box-shadow: 0 0 0 6px rgba(46, 157, 247, 0.35);
+    box-shadow:
+        0 0 0 6px rgba(46, 157, 247, 0.35),
+        0 0 18px rgba(46, 157, 247, 0.7);
 }
 
 #filter.filtering {
@@ -295,18 +416,21 @@ h1 {
 }
 
 .drop.clean {
-    background-color: #2E9DF7;
+    background: radial-gradient(circle at 35% 30%, #d7f0ff 0%, #2E9DF7 55%, #1a6fc0 100%);
+    box-shadow: 0 0 9px rgba(46, 157, 247, 0.65);
 }
 
 .drop.dirty {
-    background-color: #8a5a2b;
+    background: radial-gradient(circle at 35% 30%, #c89a6a 0%, #8a5a2b 55%, #5e3b1a 100%);
+    box-shadow: 0 0 9px rgba(138, 90, 43, 0.55);
 }
 
 .drop.obstacle {
     border-radius: 50%;
     transform: none;
-    background-color: #333333;
+    background: radial-gradient(circle at 35% 30%, #777 0%, #333333 65%, #111 100%);
     border: 2px solid #F5402C;
+    box-shadow: 0 0 10px rgba(245, 64, 44, 0.6);
 }
 
 /* Splash particles, fired off whenever the bucket catches something */
@@ -319,6 +443,7 @@ h1 {
     pointer-events: none;
     transform: translate(0, 0) scale(1);
     transition: transform 500ms ease-out, opacity 500ms ease-out;
+    box-shadow: 0 0 6px currentColor;
 }
 
 .splash-particle.active {
@@ -326,9 +451,9 @@ h1 {
     opacity: 0;
 }
 
-.splash-particle.clean-splash { background-color: #2E9DF7; }
-.splash-particle.clean-splash:nth-child(odd) { background-color: #8BD1CB; }
-.splash-particle.dirty-splash { background-color: #8a5a2b; }
+.splash-particle.clean-splash { background-color: #2E9DF7; color: #2E9DF7; }
+.splash-particle.clean-splash:nth-child(odd) { background-color: #8BD1CB; color: #8BD1CB; }
+.splash-particle.dirty-splash { background-color: #8a5a2b; color: #8a5a2b; }
 
 /* Overlays for the start and game-over screens */
 .overlay {
@@ -343,7 +468,8 @@ h1 {
     justify-content: center;
     gap: 10px;
     padding: 20px;
-    background-color: rgba(255, 255, 255, 0.95);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(222, 244, 255, 0.93) 100%);
+    box-shadow: inset 0 3px 12px rgba(255, 255, 255, 0.6);
     z-index: 2;
 }
 
@@ -354,6 +480,9 @@ h1 {
 .overlay h2 {
     color: #2E9DF7;
     margin: 0;
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.85),
+        0 0 16px rgba(46, 157, 247, 0.5);
 }
 
 .overlay p {
@@ -361,18 +490,131 @@ h1 {
     max-width: 340px;
 }
 
-button {
+/* Scoreboard: ranks runs by buckets-per-minute, shown on the start and
+   game-over screens whenever the game itself isn't running */
+.leaderboard {
+    width: 100%;
+    max-width: 320px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(214, 240, 255, 0.85));
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 14px;
+    padding: 10px 14px;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.9) inset,
+        0 6px 16px rgba(46, 157, 247, 0.2);
+}
+
+.leaderboard h3 {
+    margin: 0 0 6px;
+    color: #2E9DF7;
+    font-size: 0.95rem;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8), 0 0 10px rgba(46, 157, 247, 0.4);
+}
+
+.leaderboard ol {
+    margin: 0;
+    padding-left: 22px;
+    text-align: left;
+    font-size: 0.85rem;
+}
+
+.leaderboard li {
+    padding: 2px 0;
+}
+
+.leaderboard li.empty {
+    list-style: none;
+    margin-left: -22px;
+    color: #666;
+}
+
+/* Name-entry form shown after a run that cracks the top of the scoreboard */
+#name-entry {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+#name-input {
     font-size: 1rem;
-    padding: 10px 20px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(46, 157, 247, 0.4);
+    background: linear-gradient(180deg, #ffffff, #eaf6ff);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.8) inset,
+        0 2px 6px rgba(0, 0, 0, 0.12) inset;
+    text-align: center;
+    width: 200px;
+}
+
+/* Glossy, pill-shaped Frutiger Aero buttons with a shine sweep and bevel */
+button {
+    position: relative;
+    overflow: hidden;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 12px 26px;
     border: none;
-    border-radius: 8px;
-    background-color: #4FCB53;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #8ef09a 0%, #4FCB53 45%, #2a9a35 100%);
     color: white;
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.4),
+        0 -1px 1px rgba(0, 0, 0, 0.35);
     cursor: pointer;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.65) inset,
+        0 -7px 11px rgba(0, 0, 0, 0.25) inset,
+        0 4px 10px rgba(0, 0, 0, 0.3),
+        0 0 18px rgba(79, 203, 83, 0.55);
+    transition: transform 120ms ease, box-shadow 200ms ease, filter 200ms ease;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -40%;
+    width: 30%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: buttonShimmer 3.4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 6%;
+    width: 88%;
+    height: 42%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border-radius: 999px 999px 60% 60% / 100% 100% 30% 30%;
+    pointer-events: none;
+}
+
+@keyframes buttonShimmer {
+    0%   { transform: translateX(0) skewX(-20deg); }
+    35%  { transform: translateX(480%) skewX(-20deg); }
+    100% { transform: translateX(480%) skewX(-20deg); }
 }
 
 button:hover {
-    background-color: #159A48;
+    filter: brightness(1.12);
+    transform: translateY(-2px);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.75) inset,
+        0 -7px 11px rgba(0, 0, 0, 0.25) inset,
+        0 6px 16px rgba(0, 0, 0, 0.35),
+        0 0 28px rgba(79, 203, 83, 0.85);
+}
+
+button:active {
+    transform: translateY(1px);
+    filter: brightness(0.95);
 }
 
 #controls {
@@ -385,19 +627,37 @@ button:hover {
 }
 
 #pause-btn {
-    background-color: #2E9DF7;
+    background: linear-gradient(180deg, #9fd3ff 0%, #2E9DF7 45%, #155fa8 100%);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.65) inset,
+        0 -7px 11px rgba(0, 0, 0, 0.25) inset,
+        0 4px 10px rgba(0, 0, 0, 0.3),
+        0 0 18px rgba(46, 157, 247, 0.6);
 }
 
 #pause-btn:hover {
-    background-color: #1b7dd4;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.75) inset,
+        0 -7px 11px rgba(0, 0, 0, 0.25) inset,
+        0 6px 16px rgba(0, 0, 0, 0.35),
+        0 0 28px rgba(46, 157, 247, 0.9);
 }
 
 #reset-btn {
-    background-color: #F5402C;
+    background: linear-gradient(180deg, #ff9d8e 0%, #F5402C 45%, #ad2015 100%);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.65) inset,
+        0 -7px 11px rgba(0, 0, 0, 0.25) inset,
+        0 4px 10px rgba(0, 0, 0, 0.3),
+        0 0 18px rgba(245, 64, 44, 0.6);
 }
 
 #reset-btn:hover {
-    background-color: #c62f1f;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.75) inset,
+        0 -7px 11px rgba(0, 0, 0, 0.25) inset,
+        0 6px 16px rgba(0, 0, 0, 0.35),
+        0 0 28px rgba(245, 64, 44, 0.9);
 }
 
 /* Confetti pieces, positioned and colored by script.js */
@@ -417,6 +677,7 @@ button:hover {
     top: -10px;
     width: 8px;
     height: 14px;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
 }
 
 @keyframes confetti-fall {

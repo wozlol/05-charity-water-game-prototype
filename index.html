@@ -31,16 +31,16 @@
     <!-- Stats bar: shows score, lives, buckets filled, and level while playing -->
     <section id="stats-bar">
         <div class="stat">
-            <span class="stat-label">Score</span>
-            <span id="score-display">0</span>
+            <span class="stat-label">Buckets</span>
+            <span id="buckets-display">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Time</span>
+            <span id="timer-display">0:00</span>
         </div>
         <div class="stat">
             <span class="stat-label">Lives</span>
             <span id="lives-display">💧💧💧</span>
-        </div>
-        <div class="stat">
-            <span class="stat-label">Buckets</span>
-            <span id="buckets-display">0</span>
         </div>
         <div class="stat">
             <span class="stat-label">Level</span>
@@ -73,15 +73,28 @@
             <p>Catch blue drops to fill your bucket. Fill it all the way and it counts, then a new one starts. Catch a brown drop or an oil slick and your bucket gets contaminated, costing you the bucket and a life.</p>
             <p>Bump the mesh filter with your bucket to shove it around. Push it in front of brown drops to clean them before they reach you.</p>
             <button id="start-btn">Start Game</button>
+            <div class="leaderboard">
+                <h3>Top Bucket Rates</h3>
+                <ol id="start-leaderboard-list"></ol>
+            </div>
         </div>
 
         <!-- Shown when lives run out -->
         <div id="game-over-screen" class="overlay hidden">
             <h2>Game Over</h2>
-            <p id="final-score"></p>
             <p id="final-buckets"></p>
+            <p id="final-time"></p>
+            <p id="final-rate"></p>
             <p id="collection-rate"></p>
-            <p id="high-score-message"></p>
+            <div id="name-entry" class="hidden">
+                <p>New top bucket rate! Enter your name:</p>
+                <input type="text" id="name-input" maxlength="16" placeholder="Your name">
+                <button id="save-name-btn">Save</button>
+            </div>
+            <div class="leaderboard">
+                <h3>Top Bucket Rates</h3>
+                <ol id="game-over-leaderboard-list"></ol>
+            </div>
             <button id="play-again-btn">Play Again</button>
         </div>
 
