@@ -460,15 +460,19 @@ body.playing .stat {
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset;
 }
 
-/* The bucket is built from three nested trapezoids, each shifted inward
-   from the last by the same horizontal amount at both top and bottom x
-   coordinates. Shifting both endpoints of a sloped edge by an equal
-   amount preserves its slope exactly, so every layer's angled sides stay
-   perfectly parallel to the outer one. A plain `border` can't do this: it
-   always draws along the element's original rectangular box, not its
-   clip-path, so it only lines up near the top and leaves the tapered
-   sides with no outline at all. Layering solid-color trapezoids instead
-   makes each one peek out as a clean, evenly-angled rim around the next. */
+/* The bucket is built from three nested trapezoids. Each inner layer's
+   top and bottom edges are pulled in vertically, and at each of those new
+   heights its left/right x-coordinates are computed from the outer
+   trapezoid's own slope (x = 0.1 * y from the left edge, mirrored for the
+   right) plus a constant horizontal offset. Adding that same constant at
+   both ends of a sloped edge preserves its slope exactly, so every
+   layer's angled sides, and now its top and bottom edges too, stay
+   perfectly parallel to the outer one all the way around. A plain
+   `border` can't do this: it always draws along the element's original
+   rectangular box, not its clip-path, so it only lines up near the top
+   and leaves the tapered sides with no outline at all. Layering
+   solid-color trapezoids instead makes each one peek out as a clean,
+   evenly-angled rim around the next, on every edge. */
 
 /* Outermost layer: solid gold, this IS the bucket's rim color */
 .bucket-body {
@@ -491,7 +495,7 @@ body.playing .stat {
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, #eef2f3 0%, #d7dee1 35%, #aab4ba 100%);
-    clip-path: polygon(5% 4%, 95% 4%, 85% 100%, 15% 100%);
+    clip-path: polygon(5.4% 4%, 94.6% 4%, 85.4% 96%, 14.6% 96%);
     overflow: hidden;
     box-shadow:
         inset 0 4px 6px rgba(255, 255, 255, 0.6),
@@ -503,7 +507,7 @@ body.playing .stat {
 .bucket-cavity {
     position: absolute;
     inset: 0;
-    clip-path: polygon(12% 10%, 88% 10%, 78% 100%, 22% 100%);
+    clip-path: polygon(13% 10%, 87% 10%, 79% 90%, 21% 90%);
     overflow: hidden;
 }
 
@@ -785,7 +789,7 @@ body.playing .stat {
 
 /* A flip flop: an oval rubber sole with a thong strap meeting at a dot */
 .drop.obstacle.obstacle-flipflop {
-    border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+    border-radius: 30% 30% 25% 25% / 40% 40% 20% 20%;
     background:
         radial-gradient(circle 1.8px at 50% 38%, #222 90%, transparent 95%),
         linear-gradient(200deg, transparent 47%, #222 48.5%, #222 51.5%, transparent 53%),
@@ -808,11 +812,17 @@ body.playing .stat {
 
 /* A screw: a metal shaft with horizontal thread rings (not diagonal
    hatching, which read as feather barbs) and a slotted head */
+/* A wide flat head sitting above a distinctly thin shaft, not a single
+   gentle taper, so it reads as a screw and not a tapered capsule */
 .drop.obstacle.obstacle-screw {
     border-radius: 0;
-    clip-path: polygon(28% 0%, 72% 0%, 72% 62%, 50% 100%, 28% 62%);
+    clip-path: polygon(
+        30% 0%, 70% 0%, 70% 16%,
+        58% 16%, 58% 76%, 50% 100%, 42% 76%,
+        42% 16%, 30% 16%
+    );
     background:
-        linear-gradient(90deg, transparent 42%, #1a1a1a 44%, #1a1a1a 56%, transparent 58%) 0 6% / 100% 12% no-repeat,
+        linear-gradient(90deg, transparent 36%, #1a1a1a 38%, #1a1a1a 62%, transparent 64%) 0 4% / 100% 10% no-repeat,
         repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0 2px, transparent 2px 5px),
         linear-gradient(90deg, #8a8f94 0%, #d8dcdf 35%, #b0b5b9 55%, #6d7275 100%);
 }
