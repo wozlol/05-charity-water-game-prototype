@@ -228,8 +228,57 @@ function playBubble(frequency, duration) {
 
 // The pop-like catch and filter sounds stay as simple droplet/bubble
 // shapes; the murkier ones below get a noise-based splash layered in
+// A short, percussive water "plop": a low thump that drops in pitch fast,
+// plus a tiny tick of noise right at the start for the splash of the drop
+// landing. Randomized every time so no two plops sound quite the same.
+function playPlop() {
+    if (!soundOn) {
+        return;
+    }
+
+    const ctx = getAudioContext();
+
+    const startFrequency = 220 + (Math.random() * 180);
+    const endFrequency = 70 + (Math.random() * 50);
+    const duration = 0.09 + (Math.random() * 0.07);
+
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(startFrequency, ctx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(endFrequency, ctx.currentTime + duration);
+
+    gainNode.gain.setValueAtTime(0.35, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + duration);
+
+    const tickDuration = 0.02 + (Math.random() * 0.02);
+    const noiseSource = ctx.createBufferSource();
+    noiseSource.buffer = createNoiseBuffer(tickDuration);
+
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.Q.value = 1.5;
+    noiseFilter.frequency.value = 1200 + (Math.random() * 1400);
+
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.25, ctx.currentTime);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + tickDuration);
+
+    noiseSource.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noiseSource.start();
+    noiseSource.stop(ctx.currentTime + tickDuration);
+}
+
 function playCatchCleanSound() {
-    playWaterDrop(1100, 500, 0.18);
+    playPlop();
 }
 
 function playCatchDirtySound() {
@@ -848,6 +897,7 @@ function endGame() {
     clearDrops();
     gameArea.classList.remove('playing');
     document.body.classList.remove('playing');
+    startTitleWave();
 
     const bpm = computeBucketsPerMinute();
 
@@ -896,6 +946,7 @@ function resetGame() {
 
     gameArea.classList.remove('playing');
     document.body.classList.remove('playing');
+    startTitleWave();
     hideWithFade(gameOverScreen);
     hideWithFade(pauseScreen);
     showInstantly(startScreen);
@@ -913,6 +964,7 @@ function pauseGame() {
     clearInterval(gameLoopId);
     gameArea.classList.remove('playing');
     document.body.classList.remove('playing');
+    startTitleWave();
     showInstantly(pauseScreen);
 }
 
@@ -1050,8 +1102,15 @@ document.addEventListener('click', function (event) {
     }, 1400);
 });
 
-// Splits the title into letters so each can bob on its own wobble delay
-function splitTitleIntoLetters() {
+// How far the "classic" wave's wavelength has drifted from its original
+// 1.8s. It only ever nudges a little each time, never jumps.
+let classicWavelengthDrift = 0;
+
+// Rebuilds the title into per-letter spans and rolls a coin for which
+// wave personality plays this time: the newer chaotic per-letter wobble,
+// or the original even stagger (which still drifts its wavelength a touch
+// further each time it's picked, instead of resetting to exactly 1.8s)
+function startTitleWave() {
     const titleEl = document.getElementById('title');
     if (!titleEl) {
         return;
@@ -1060,26 +1119,43 @@ function splitTitleIntoLetters() {
     const text = titleEl.textContent;
     titleEl.textContent = '';
 
+    const useChaoticVariant = Math.random() < 0.5;
+
+    if (!useChaoticVariant) {
+        const driftStep = (Math.random() * 0.06) - 0.03;
+        classicWavelengthDrift = Math.max(-0.15, Math.min(0.15, classicWavelengthDrift + driftStep));
+    }
+
     for (let i = 0; i < text.length; i++) {
         const letter = text[i];
         const span = document.createElement('span');
         span.className = 'title-letter';
         span.textContent = letter === ' ' ? ' ' : letter;
 
-        const baseDelay = i * 0.08;
-        const randomJitter = (Math.random() * 0.36) - 0.18;
-        const duration = 1.5 + (Math.random() * 1.0);
-        const bobHeight = 5 + (Math.random() * 7);
+        if (useChaoticVariant) {
+            const baseDelay = i * 0.08;
+            const randomJitter = (Math.random() * 0.36) - 0.18;
+            const duration = 1.5 + (Math.random() * 1.0);
+            const bobHeight = 5 + (Math.random() * 7);
 
-        span.style.animationDelay = `${(baseDelay + randomJitter).toFixed(2)}s`;
-        span.style.animationDuration = `${duration.toFixed(2)}s`;
-        span.style.setProperty('--bob-height', `${bobHeight.toFixed(1)}px`);
+            span.style.animationDelay = `${(baseDelay + randomJitter).toFixed(2)}s`;
+            span.style.animationDuration = `${duration.toFixed(2)}s`;
+            span.style.setProperty('--bob-height', `${bobHeight.toFixed(1)}px`);
+        } else {
+            const baseDelay = i * 0.08;
+            const smallJitter = (Math.random() * 0.12) - 0.06;
+            const duration = 1.8 + classicWavelengthDrift;
+
+            span.style.animationDelay = `${(baseDelay + smallJitter).toFixed(2)}s`;
+            span.style.animationDuration = `${duration.toFixed(2)}s`;
+            span.style.setProperty('--bob-height', '6px');
+        }
 
         titleEl.appendChild(span);
     }
 }
 
-splitTitleIntoLetters();
+startTitleWave();
 
 // Gives each stat its own randomized delay, speed, and bob height so the
 // wave across Buckets/Time/Lives/Level reads as organic, not mechanical
