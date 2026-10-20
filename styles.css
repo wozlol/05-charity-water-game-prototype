@@ -43,6 +43,7 @@ body {
 
 .sky-cloud {
     position: absolute;
+    overflow: visible;
     fill: rgba(255, 255, 255, 0.75);
 }
 
@@ -248,7 +249,7 @@ h1 {
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-#score-display, #level-display, #buckets-display {
+#timer-display, #level-display, #buckets-display {
     font-size: 1.4rem;
     font-weight: bold;
     color: #2E9DF7;
