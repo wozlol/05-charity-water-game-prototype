@@ -675,7 +675,7 @@ function updateBucketSwing() {
         return;
     }
 
-    const targetTilt = Math.max(-18, Math.min(18, -bucketVX * 2.2));
+    const targetTilt = Math.max(-18, Math.min(18, bucketVX * 2.2));
     const tiltSpring = (targetTilt - bucketTilt) * 0.18;
     bucketTiltVelocity = (bucketTiltVelocity + tiltSpring) * 0.78;
     bucketTilt = bucketTilt + bucketTiltVelocity;
