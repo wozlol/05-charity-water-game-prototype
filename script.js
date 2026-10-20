@@ -1009,7 +1009,7 @@ function endGame() {
     clearDrops();
     gameArea.classList.remove('playing');
     document.body.classList.remove('playing');
-    startTitleWave();
+    startTitleWave(level >= 10);
 
     const bpm = computeBucketsPerMinute();
 
@@ -1058,7 +1058,7 @@ function resetGame() {
 
     gameArea.classList.remove('playing');
     document.body.classList.remove('playing');
-    startTitleWave();
+    startTitleWave(false);
     hideWithFade(gameOverScreen);
     hideWithFade(pauseScreen);
     showInstantly(startScreen);
@@ -1076,7 +1076,7 @@ function pauseGame() {
     clearInterval(gameLoopId);
     gameArea.classList.remove('playing');
     document.body.classList.remove('playing');
-    startTitleWave();
+    startTitleWave(false);
     showInstantly(pauseScreen);
 }
 
@@ -1218,11 +1218,12 @@ document.addEventListener('click', function (event) {
 // 1.8s. It only ever nudges a little each time, never jumps.
 let classicWavelengthDrift = 0;
 
-// Rebuilds the title into per-letter spans and rolls a coin for which
-// wave personality plays this time: the newer chaotic per-letter wobble,
-// or the original even stagger (which still drifts its wavelength a touch
-// further each time it's picked, instead of resetting to exactly 1.8s)
-function startTitleWave() {
+// Rebuilds the title into per-letter spans. useChaoticVariant picks which
+// wave personality plays: the louder per-letter wobble (only used when the
+// player dies on level 10+), or the gradual even stagger that's the norm
+// the rest of the time, whose wavelength drifts a touch further each time
+// instead of resetting to exactly 1.8s.
+function startTitleWave(useChaoticVariant) {
     const titleEl = document.getElementById('title');
     if (!titleEl) {
         return;
@@ -1230,8 +1231,6 @@ function startTitleWave() {
 
     const text = titleEl.textContent;
     titleEl.textContent = '';
-
-    const useChaoticVariant = Math.random() < 0.5;
 
     if (!useChaoticVariant) {
         const driftStep = (Math.random() * 0.06) - 0.03;
@@ -1267,7 +1266,7 @@ function startTitleWave() {
     }
 }
 
-startTitleWave();
+startTitleWave(false);
 
 // Gives each stat its own randomized delay, speed, and bob height so the
 // wave across Buckets/Time/Lives/Level reads as organic, not mechanical
