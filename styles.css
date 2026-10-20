@@ -777,12 +777,20 @@ body.playing .stat {
 
 /* A crumpled paper ball: an irregular off-white lump with a few faint
    crease lines */
+/* An angular, many-faceted polygon (not a smooth round blob) so it reads
+   as a crumpled wad of paper instead of a pale round object */
 .drop.obstacle.obstacle-paperball {
-    border-radius: 48% 52% 55% 45% / 52% 48% 50% 55%;
+    border-radius: 0;
+    clip-path: polygon(
+        35% 2%, 60% 0%, 78% 12%, 95% 30%, 100% 50%,
+        92% 72%, 75% 92%, 55% 100%, 30% 96%,
+        8% 85%, 0% 62%, 5% 38%, 15% 15%
+    );
     background:
-        linear-gradient(115deg, transparent 46%, rgba(120, 120, 120, 0.35) 48%, transparent 50%),
-        linear-gradient(25deg, transparent 56%, rgba(120, 120, 120, 0.3) 58%, transparent 60%),
-        linear-gradient(170deg, transparent 36%, rgba(110, 110, 110, 0.25) 38%, transparent 40%),
+        linear-gradient(115deg, transparent 0% 44%, rgba(110, 110, 110, 0.4) 44% 48%, transparent 48% 100%),
+        linear-gradient(25deg, transparent 0% 54%, rgba(110, 110, 110, 0.35) 54% 58%, transparent 58% 100%),
+        linear-gradient(170deg, transparent 0% 34%, rgba(100, 100, 100, 0.3) 34% 38%, transparent 38% 100%),
+        linear-gradient(60deg, transparent 0% 64%, rgba(100, 100, 100, 0.3) 64% 68%, transparent 68% 100%),
         radial-gradient(circle at 35% 30%, #ffffff 0%, #e8e6df 55%, #c7c4ba 100%);
     border: 2px solid #b5b2a8;
 }
@@ -829,15 +837,14 @@ body.playing .stat {
 
 /* A juice box: a carton silhouette with an actual straw tab sticking out
    the top (via clip-path, not just a line) and a label stripe */
+/* A gable-top carton silhouette (peaked roof fold like a real juice/milk
+   carton), unambiguous without needing a protruding straw detail */
 .drop.obstacle.obstacle-juicebox {
     border-radius: 0;
-    clip-path: polygon(
-        0% 18%, 60% 18%, 60% 2%, 76% 2%, 76% 18%,
-        100% 18%, 100% 100%, 0% 100%
-    );
+    clip-path: polygon(10% 100%, 10% 35%, 50% 8%, 90% 35%, 90% 100%);
     background:
-        linear-gradient(0deg, rgba(255, 255, 255, 0.4) 18% 34%, transparent 34% 100%),
-        linear-gradient(200deg, transparent 60%, rgba(0, 0, 0, 0.15) 62%, transparent 64%),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.4) 0% 25%, transparent 25% 100%),
+        linear-gradient(200deg, transparent 0% 55%, rgba(0, 0, 0, 0.15) 55% 57%, transparent 57% 100%),
         linear-gradient(180deg, #FF902A 0%, #F5402C 60%, #c23325 100%);
     border: 2px solid #a82b1d;
 }
