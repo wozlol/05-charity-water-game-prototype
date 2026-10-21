@@ -970,8 +970,9 @@ body.playing .stat {
 /* Scoreboard: ranks runs by buckets-per-minute, shown on the start and
    game-over screens whenever the game itself isn't running */
 .leaderboard {
-    width: 100%;
-    max-width: 440px;
+    width: fit-content;
+    min-width: 240px;
+    max-width: 100%;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(214, 240, 255, 0.85));
     border: 1px solid rgba(255, 255, 255, 0.85);
     border-radius: 14px;
@@ -989,8 +990,11 @@ body.playing .stat {
 }
 
 .leaderboard ol {
-    margin: 0;
-    padding-left: 22px;
+    margin: 0 auto;
+    padding-left: 0;
+    width: fit-content;
+    max-width: 100%;
+    list-style-position: inside;
     text-align: left;
     font-size: 1.05rem;
     max-height: none;
@@ -1004,8 +1008,6 @@ body.playing .stat {
 
 .leaderboard li.empty {
     list-style: none;
-    margin-left: -22px;
-    width: calc(100% + 22px);
     text-align: center;
     color: #666;
 }
