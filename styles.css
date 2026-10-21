@@ -841,8 +841,8 @@ body.playing .stat {
         /* head listed first (topmost) so it covers the shaft underneath
            at the overlap; shaft's box now starts higher, well under the
            head's own box, so no sliver of it pokes out above the head */
-        linear-gradient(90deg, transparent 30%, #c4c4c4 32%, #e8e8e8 50%, #c4c4c4 68%, transparent 70%) 0 26.67% / 100% 10% no-repeat,
-        linear-gradient(90deg, transparent 46%, #9a9a9a 47%, #c4c4c4 50%, #9a9a9a 53%, transparent 54%) 0 50% / 100% 40% no-repeat,
+        linear-gradient(90deg, #c4c4c4, #e8e8e8 50%, #c4c4c4) 12.5% 6.67% / 36% 10% no-repeat,
+        linear-gradient(90deg, #9a9a9a, #c4c4c4 50%, #9a9a9a) 22.7% 20% / 12% 40% no-repeat,
         repeating-linear-gradient(180deg, rgba(90, 55, 20, 0.25) 0 2px, transparent 2px 7px),
         linear-gradient(180deg, #a9703a 0%, #8a5a2b 60%, #6e4720 100%);
     border: 2px solid #5a3a18;
