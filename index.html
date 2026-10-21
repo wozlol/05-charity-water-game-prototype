@@ -137,6 +137,11 @@
     <!-- Confetti pieces get added here by script.js during celebrations -->
     <div id="confetti-layer"></div>
 
+    <!-- A visible build marker, bumped on every change, so it's always
+         obvious whether the browser is actually showing current code or
+         a cached copy -- independent of judging any visual detail. -->
+    <p id="build-marker" style="position: fixed; bottom: 2px; right: 6px; font-size: 10px; color: rgba(0, 0, 0, 0.35); margin: 0; z-index: 9999; font-family: monospace; pointer-events: none;">build 2026-10-21 08:16:32</p>
+
     <script src="script.js"></script>
 </body>
 </html>
