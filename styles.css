@@ -821,7 +821,7 @@ body.playing .stat {
     box-shadow: none;
     filter: drop-shadow(0 0 5px rgba(245, 64, 44, 0.6));
     background-color: transparent;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='3' width='90' height='94' rx='35' ry='22' fill='%23e94b4b' stroke='%238a2424' stroke-width='4'/%3E%3Cline x1='15' y1='20' x2='50' y2='42' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Cline x1='85' y1='20' x2='50' y2='42' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Cline x1='50' y1='42' x2='50' y2='66' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='42' r='5' fill='%23222'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='3' width='90' height='94' rx='16' ry='10' fill='%23e94b4b' stroke='%238a2424' stroke-width='4'/%3E%3Cline x1='50' y1='26' x2='18' y2='52' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Cline x1='50' y1='26' x2='82' y2='52' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Cline x1='50' y1='26' x2='50' y2='14' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='26' r='5' fill='%23222'/%3E%3C/svg%3E");
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
@@ -834,8 +834,11 @@ body.playing .stat {
 .drop.obstacle.obstacle-plank {
     border-radius: 3px;
     background:
+        /* head listed first (topmost) so it covers the shaft underneath
+           at the overlap; shaft's box now starts higher, well under the
+           head's own box, so no sliver of it pokes out above the head */
         linear-gradient(90deg, transparent 30%, #c4c4c4 32%, #e8e8e8 50%, #c4c4c4 68%, transparent 70%) 0 26% / 100% 10% no-repeat,
-        linear-gradient(90deg, transparent 46%, #9a9a9a 47%, #c4c4c4 50%, #9a9a9a 53%, transparent 54%) 0 34% / 100% 34% no-repeat,
+        linear-gradient(90deg, transparent 46%, #9a9a9a 47%, #c4c4c4 50%, #9a9a9a 53%, transparent 54%) 0 32% / 100% 36% no-repeat,
         repeating-linear-gradient(180deg, rgba(90, 55, 20, 0.25) 0 2px, transparent 2px 7px),
         linear-gradient(180deg, #a9703a 0%, #8a5a2b 60%, #6e4720 100%);
     border: 2px solid #5a3a18;
@@ -879,7 +882,7 @@ body.playing .stat {
     box-shadow: none;
     filter: drop-shadow(0 0 5px rgba(245, 64, 44, 0.6));
     background-color: transparent;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='10,100 10,35 50,8 90,35 90,100' fill='white' stroke='%23444' stroke-width='5'/%3E%3Cline x1='42' y1='9' x2='58' y2='9' stroke='white' stroke-width='4.5' stroke-linecap='round'/%3E%3Cline x1='22' y1='33' x2='50' y2='20' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='78' y1='33' x2='50' y2='20' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='50' y1='20' x2='50' y2='11' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='16,100 16,35 50,8 84,35 84,100' fill='white' stroke='%23444' stroke-width='5'/%3E%3Cline x1='44' y1='9' x2='56' y2='9' stroke='white' stroke-width='4.5' stroke-linecap='round'/%3E%3Cline x1='26' y1='33' x2='50' y2='24' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='74' y1='33' x2='50' y2='24' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='50' y1='24' x2='50' y2='13' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
