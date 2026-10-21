@@ -877,6 +877,7 @@ body.playing .stat {
    line at the peak, and a Y fold low on the roof. */
 .drop.obstacle.obstacle-milkbox {
     width: 20px;
+    height: 38px;
     border-radius: 0;
     border: none;
     box-shadow: none;
