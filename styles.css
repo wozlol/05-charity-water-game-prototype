@@ -957,6 +957,12 @@ body.playing .stat {
 
 /* Game Over gets the same glossy chrome letters as the header title (via
    .title-letter, applied to its children by script.js), just huge */
+/* Game over is a little more see-through than the other overlays so the
+   board behind it shows through */
+#game-over-screen {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(222, 244, 255, 0.82) 100%);
+}
+
 #game-over-title {
     font-size: 2.6rem;
     line-height: 1.1;
