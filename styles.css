@@ -178,6 +178,7 @@ body.playing header::after {
 
 #logo {
     position: relative;
+    left: -3px;
     max-width: 220px;
     margin-bottom: 5px;
     filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.18));
