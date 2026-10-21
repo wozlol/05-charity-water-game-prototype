@@ -537,10 +537,14 @@ function spawnDrop() {
     const roll = Math.random();
     let dropType = 'clean';
 
-    if (roll < 0.65) {
+    // Trash starts at 10% of drops and gains 1.2 points each level, capped
+    // at 24%. The extra comes out of the clean share; dirty stays at 25%.
+    const extraTrash = Math.min(0.14, (level - 1) * 0.012);
+
+    if (roll < 0.65 - extraTrash) {
         dropType = 'clean';
         cleanDropsSpawned = cleanDropsSpawned + 1;
-    } else if (roll < 0.9) {
+    } else if (roll < 0.9 - extraTrash) {
         dropType = 'dirty';
     } else {
         dropType = 'obstacle';
