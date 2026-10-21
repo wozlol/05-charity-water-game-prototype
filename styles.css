@@ -1290,6 +1290,7 @@ button.click-wobble {
 
 #controls {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     gap: 15px;
@@ -1444,4 +1445,83 @@ button.click-wobble {
     body.playing #lives-display {
         line-height: 1.1;
     }
+}
+
+/* Yellow Instructions button, charity: water yellow with dark text so it
+   stays readable on the bright gradient */
+#instructions-btn {
+    background: linear-gradient(180deg, #fff1a0 0%, #FFC907 45%, #d19a00 100%);
+    color: #5a4300;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.75) inset,
+        0 -7px 11px rgba(0, 0, 0, 0.2) inset,
+        0 4px 10px rgba(0, 0, 0, 0.3),
+        0 0 18px rgba(255, 201, 7, 0.65);
+}
+
+#instructions-btn:hover {
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.8) inset,
+        0 -7px 11px rgba(0, 0, 0, 0.2) inset,
+        0 6px 16px rgba(0, 0, 0, 0.35),
+        0 0 28px rgba(255, 201, 7, 0.95);
+}
+
+/* How-to-play card: sits above the start, pause, and game-over panels */
+#instructions-screen {
+    z-index: 3;
+    gap: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, #def4ff 100%);
+}
+
+#instruction-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 420px;
+    text-align: left;
+    font-size: 0.92rem;
+    line-height: 1.25;
+}
+
+#instruction-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 0;
+}
+
+.instr-icon {
+    flex: 0 0 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    white-space: nowrap;
+}
+
+.instr-icon-small {
+    font-size: 0.8rem;
+}
+
+/* The game's real drop styles, just sitting in the row instead of falling */
+.instr-icon .drop {
+    position: static;
+    display: block;
+    flex-shrink: 0;
+}
+
+.instr-filter {
+    display: block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 3px solid #2E9DF7;
+    background-color: rgba(255, 255, 255, 0.85);
+    background-image:
+        repeating-linear-gradient(0deg, #8BD1CB 0 2px, transparent 2px 8px),
+        repeating-linear-gradient(90deg, #8BD1CB 0 2px, transparent 2px 8px);
+    box-shadow: 0 0 10px rgba(46, 157, 247, 0.45);
 }

@@ -26,6 +26,9 @@ const playAgainBtn = document.getElementById('play-again-btn');
 const resetBtn = document.getElementById('reset-btn');
 const pauseBtn = document.getElementById('pause-btn');
 const pauseScreen = document.getElementById('pause-screen');
+const instructionsBtn = document.getElementById('instructions-btn');
+const instructionsCloseBtn = document.getElementById('instructions-close-btn');
+const instructionsScreen = document.getElementById('instructions-screen');
 const resumeBtn = document.getElementById('resume-btn');
 const soundToggleBtn = document.getElementById('sound-toggle');
 const confettiLayer = document.getElementById('confetti-layer');
@@ -1462,6 +1465,7 @@ function startGame() {
     hideWithFade(startScreen);
     hideWithFade(gameOverScreen);
     hideWithFade(pauseScreen);
+    hideWithFade(instructionsScreen);
     hideWithFade(nameEntry);
     nameInput.value = '';
 
@@ -1556,6 +1560,7 @@ function resetGame() {
     startTitleWave(false);
     hideWithFade(gameOverScreen);
     hideWithFade(pauseScreen);
+    hideWithFade(instructionsScreen);
     showInstantly(startScreen);
     renderLeaderboard(startLeaderboardList, loadLeaderboard());
 }
@@ -1573,6 +1578,21 @@ function pauseGame() {
     document.body.classList.remove('playing');
     startTitleWave(false);
     showInstantly(pauseScreen);
+}
+
+// Opens the how-to-play card over the game area. A game in progress is
+// paused first, and stays paused (on its Paused screen) after the card closes
+function toggleInstructions() {
+    if (!instructionsScreen.classList.contains('hidden')) {
+        hideWithFade(instructionsScreen);
+        return;
+    }
+
+    if (gameRunning && !gamePaused) {
+        pauseGame();
+    }
+
+    showInstantly(instructionsScreen);
 }
 
 // Picks back up right where the game left off
@@ -1679,6 +1699,8 @@ startBtn.addEventListener('click', startGame);
 playAgainBtn.addEventListener('click', startGame);
 resetBtn.addEventListener('click', resetGame);
 pauseBtn.addEventListener('click', pauseGame);
+instructionsBtn.addEventListener('click', toggleInstructions);
+instructionsCloseBtn.addEventListener('click', toggleInstructions);
 resumeBtn.addEventListener('click', resumeGame);
 
 saveNameBtn.addEventListener('click', function () {

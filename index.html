@@ -30,7 +30,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20261021093617">
+    <link rel="stylesheet" href="styles.css?v=20261021100944">
 </head>
 <body>
 
@@ -111,6 +111,42 @@
             <button id="play-again-btn">Play Again</button>
         </div>
 
+        <!-- Quick how-to-play card, opened by the Instructions button -->
+        <div id="instructions-screen" class="overlay hidden">
+            <h2>How to Play</h2>
+            <ul id="instruction-list">
+                <li>
+                    <span class="instr-icon">👆</span>
+                    <span><b>Drag</b> your finger or mouse to move the bucket.</span>
+                </li>
+                <li>
+                    <span class="instr-icon"><span class="drop clean"></span></span>
+                    <span><b>Catch blue drops.</b> 10 fill a bucket.</span>
+                </li>
+                <li>
+                    <span class="instr-icon"><span class="drop dirty"></span></span>
+                    <span><b>Dodge brown drops.</b> Catch one and you lose the bucket and a life.</span>
+                </li>
+                <li>
+                    <span class="instr-icon"><span class="instr-filter"></span></span>
+                    <span><b>Bump the filter</b> into brown drops to make them blue.</span>
+                </li>
+                <li>
+                    <span class="instr-icon"><span class="drop dirty dirty-bonus"></span></span>
+                    <span><b>Filter a glowing green drop</b> for 2 bonus blue drops.</span>
+                </li>
+                <li>
+                    <span class="instr-icon"><span class="drop obstacle obstacle-can"></span></span>
+                    <span><b>Dodge trash.</b> 3 hits break your bucket and cost a life. Trash also breaks the filter, and you get it back when you fill a bucket.</span>
+                </li>
+                <li>
+                    <span class="instr-icon instr-icon-small">💧💧💧</span>
+                    <span>Lose all 3 lives and the game ends. Fill buckets fast: your score is buckets per minute.</span>
+                </li>
+            </ul>
+            <button id="instructions-close-btn">Got It</button>
+        </div>
+
         <!-- Shown while the game is paused -->
         <div id="pause-screen" class="overlay hidden">
             <h2>Paused</h2>
@@ -143,6 +179,7 @@
     <section id="controls">
         <button id="pause-btn">Pause</button>
         <button id="reset-btn">Reset</button>
+        <button id="instructions-btn">Instructions</button>
     </section>
 
     <footer id="site-footer">
@@ -155,8 +192,8 @@
     <!-- A visible build marker, bumped on every change, so it's always
          obvious whether the browser is actually showing current code or
          a cached copy -- independent of judging any visual detail. -->
-    <p id="build-marker" style="position: fixed; bottom: 2px; right: 6px; font-size: 10px; color: rgba(0, 0, 0, 0.35); margin: 0; z-index: 9999; font-family: monospace; pointer-events: none;">build 2026-10-21 10:05:28</p>
+    <p id="build-marker" style="position: fixed; bottom: 2px; right: 6px; font-size: 10px; color: rgba(0, 0, 0, 0.35); margin: 0; z-index: 9999; font-family: monospace; pointer-events: none;">build 2026-10-21 10:09:44</p>
 
-    <script src="script.js?v=20261021100528"></script>
+    <script src="script.js?v=20261021100911"></script>
 </body>
 </html>
