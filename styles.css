@@ -1047,9 +1047,18 @@ body.playing .stat {
 /* Name-entry form shown after a run that cracks the top of the scoreboard */
 #name-entry {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
     gap: 8px;
+}
+
+/* The prompt takes its own full-width row so the input and Save button
+   sit side by side beneath it */
+#name-entry p {
+    flex: 0 0 100%;
+    max-width: none;
 }
 
 /* #name-entry's own display:flex above otherwise outranks the generic
