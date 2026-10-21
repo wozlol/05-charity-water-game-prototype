@@ -883,7 +883,7 @@ body.playing .stat {
     box-shadow: none;
     filter: drop-shadow(0 0 5px rgba(245, 64, 44, 0.6));
     background-color: transparent;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 32'%3E%3Cpolygon points='2,31 2,14 10,6 18,14 18,31' fill='white' stroke='%23444' stroke-width='2' stroke-linejoin='miter'/%3E%3Cg stroke='%23444' stroke-width='1.8' stroke-linecap='round' fill='none'%3E%3Cline x1='10' y1='6' x2='10' y2='1.5'/%3E%3Cline x1='10' y1='13' x2='10' y2='8.5'/%3E%3Cline x1='10' y1='13' x2='5' y2='17.5'/%3E%3Cline x1='10' y1='13' x2='15' y2='17.5'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 32'%3E%3Cpolygon points='2,31 2,14 10,6 18,14 18,31' fill='white' stroke='%23444' stroke-width='2' stroke-linejoin='miter'/%3E%3Cg stroke='%23444' stroke-width='1.8' stroke-linecap='round' fill='none'%3E%3Cline x1='10' y1='6' x2='10' y2='3.8'/%3E%3Cline x1='10' y1='13' x2='10' y2='8.5'/%3E%3Cline x1='10' y1='13' x2='5' y2='16'/%3E%3Cline x1='10' y1='13' x2='15' y2='16'/%3E%3C/g%3E%3C/svg%3E");
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
