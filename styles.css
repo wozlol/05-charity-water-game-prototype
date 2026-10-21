@@ -813,17 +813,21 @@ body.playing .stat {
    strap), instead of mixing a CSS clip-path/gradient with a separate
    background-image layer -- that layering kept silently failing to show
    the strap at all. */
+/* The sole's shape is now plain border-radius on the element's own real
+   14x28 box -- no SVG stretching involved at all for the silhouette, so
+   there's nothing that can go wrong with its proportions. Only the thin
+   Y-strap lines are a layered SVG on top, where any stretching quirk
+   would be a minor cosmetic issue, not a "whole shape is wrong" one. */
 .drop.obstacle.obstacle-flipflop {
     width: 14px;
     height: 28px;
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
-    filter: drop-shadow(0 0 5px rgba(245, 64, 44, 0.6));
-    background-color: transparent;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='3' width='90' height='94' rx='16' ry='10' fill='%23e94b4b' stroke='%238a2424' stroke-width='4'/%3E%3Cline x1='50' y1='26' x2='18' y2='52' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Cline x1='50' y1='26' x2='82' y2='52' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Cline x1='50' y1='26' x2='50' y2='14' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='26' r='5' fill='%23222'/%3E%3C/svg%3E");
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
+    border-radius: 35% / 18%;
+    border: 2px solid #8a2424;
+    background-image:
+        linear-gradient(160deg, #ff6b6b 0%, #e94b4b 60%, #c23a3a 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cline x1='50' y1='26' x2='18' y2='52' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Cline x1='50' y1='26' x2='82' y2='52' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Cline x1='50' y1='26' x2='50' y2='14' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='26' r='5' fill='%23222'/%3E%3C/svg%3E");
+    background-size: 100% 100%, 100% 100%;
+    background-repeat: no-repeat, no-repeat;
 }
 
 /* A wood plank with a nail driven through it: horizontal grain, a nail
@@ -861,28 +865,20 @@ body.playing .stat {
         linear-gradient(90deg, #8a8f94 0%, #d8dcdf 35%, #b0b5b9 55%, #6d7275 100%);
 }
 
-/* A juice box: a carton silhouette with an actual straw tab sticking out
-   the top (via clip-path, not just a line) and a label stripe */
-/* A gable-top carton silhouette (peaked roof fold like a real juice/milk
-   carton), unambiguous without needing a protruding straw detail */
-/* A white milk carton: a gable-top fold with a ridge line plus the two
-   diagonal roof-to-wall creases, and fold lines on the body below too
-   (not just the tent) */
-/* Super simple: a triangle on a rectangle, a short white seam line near
-   the peak, and three lines making a Y on the triangle for the fold.
-   Drawn as an inline SVG for exact line placement, with a drop-shadow
-   outline since a plain `border` doesn't follow clip-path edges. */
-/* The whole carton -- silhouette, its own stroke outline, the white
-   peak seam, and the Y fold -- drawn directly in one SVG, rather than a
-   CSS clip-path paired with a separate drop-shadow trying to fake an
-   outline around it (too faint to read as "an outline" at this size). */
-.drop.obstacle.obstacle-juicebox {
+/* A milk box: the outer silhouette is now a clip-path on the element's
+   own real box (same guarantee as the flip-flop's border-radius fix --
+   no SVG stretching involved for the overall shape/proportions). The
+   element's own background-color shows through as a thin rim around the
+   smaller white polygon layered on top, which is how the outline is
+   achieved without a `border` (which doesn't follow clip-path) or a
+   drop-shadow (too faint to read clearly). Fold lines and the white peak
+   seam are layered the same way. */
+.drop.obstacle.obstacle-milkbox {
     border-radius: 0;
     border: none;
-    box-shadow: none;
-    filter: drop-shadow(0 0 5px rgba(245, 64, 44, 0.6));
-    background-color: transparent;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='16,100 16,35 50,8 84,35 84,100' fill='white' stroke='%23444' stroke-width='5'/%3E%3Cline x1='44' y1='9' x2='56' y2='9' stroke='white' stroke-width='4.5' stroke-linecap='round'/%3E%3Cline x1='26' y1='33' x2='50' y2='24' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='74' y1='33' x2='50' y2='24' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='50' y1='24' x2='50' y2='13' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
+    clip-path: polygon(16% 100%, 16% 35%, 50% 8%, 84% 35%, 84% 100%);
+    background-color: #444;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='19,97 19,37 50,12 81,37 81,97' fill='white'/%3E%3Cline x1='44' y1='9' x2='56' y2='9' stroke='white' stroke-width='4.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='34' x2='50' y2='25' stroke='%23444' stroke-width='4' stroke-linecap='round'/%3E%3Cline x1='73' y1='34' x2='50' y2='25' stroke='%23444' stroke-width='4' stroke-linecap='round'/%3E%3Cline x1='50' y1='25' x2='50' y2='15' stroke='%23444' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }

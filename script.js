@@ -39,7 +39,7 @@ const FILL_STEP = 10;
 // Obstacle drops get tagged with one of these for visual variety
 const obstacleVariants = [
     'obstacle-bowling', 'obstacle-can', 'obstacle-bottle', 'obstacle-tire', 'obstacle-banana',
-    'obstacle-paperball', 'obstacle-flipflop', 'obstacle-plank', 'obstacle-screw', 'obstacle-juicebox'
+    'obstacle-paperball', 'obstacle-flipflop', 'obstacle-plank', 'obstacle-screw', 'obstacle-milkbox'
 ];
 
 // A rotating gallery of river photos, one shown at a time behind the game
