@@ -506,13 +506,17 @@ gameArea.addEventListener('mousemove', function (event) {
     moveBucketTo(targetX, targetY);
 });
 
-// Touch dragging: the bucket follows the finger directly, on both axes
+// Where the finger sits relative to the bucket: about half a fingertip's
+// width above the top of the handle, so the finger never hides the bucket
+const TOUCH_GAP_ABOVE_HANDLE = 22;
+
+// Touch dragging: the bucket hangs just below the finger, on both axes
 gameArea.addEventListener('touchmove', function (event) {
     event.preventDefault();
     const touch = event.touches[0];
     const areaRect = gameArea.getBoundingClientRect();
     const targetX = touch.clientX - areaRect.left - (bucket.offsetWidth / 2);
-    const targetY = touch.clientY - areaRect.top - (bucket.offsetHeight / 2);
+    const targetY = touch.clientY - areaRect.top + TOUCH_GAP_ABOVE_HANDLE;
     moveBucketTo(targetX, targetY);
 }, { passive: false });
 
