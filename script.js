@@ -138,14 +138,70 @@ let audioContext = null;
 function getAudioContext() {
     if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // If the phone ever suspends or interrupts audio again (a call, a
+        // locked screen, switching apps), wait for the next tap to unlock it
+        audioContext.addEventListener('statechange', function () {
+            if (audioContext.state !== 'running') {
+                armAudioUnlock();
+            }
+        });
     }
 
-    if (audioContext.state === 'suspended') {
-        audioContext.resume();
+    // iOS reports 'interrupted' as well as 'suspended'
+    if (audioContext.state !== 'running') {
+        audioContext.resume().catch(function () {});
     }
 
     return audioContext;
 }
+
+// Phones only let audio start from inside a real tap or touch, and the
+// first sound usually plays from the game loop instead. So the first
+// touch, tap, or key press creates and wakes the audio engine, including
+// the tiny silent sound iOS needs to count it as started.
+const AUDIO_UNLOCK_EVENTS = ['touchstart', 'touchend', 'pointerdown', 'click', 'keydown'];
+let audioUnlockArmed = false;
+
+function unlockAudio() {
+    const context = getAudioContext();
+
+    const silentSource = context.createBufferSource();
+    silentSource.buffer = context.createBuffer(1, 1, 22050);
+    silentSource.connect(context.destination);
+    silentSource.start(0);
+
+    context.resume().then(function () {
+        if (context.state === 'running') {
+            disarmAudioUnlock();
+        }
+    }).catch(function () {});
+}
+
+function armAudioUnlock() {
+    if (audioUnlockArmed) {
+        return;
+    }
+    audioUnlockArmed = true;
+    AUDIO_UNLOCK_EVENTS.forEach(function (name) {
+        document.addEventListener(name, unlockAudio, true);
+    });
+}
+
+function disarmAudioUnlock() {
+    audioUnlockArmed = false;
+    AUDIO_UNLOCK_EVENTS.forEach(function (name) {
+        document.removeEventListener(name, unlockAudio, true);
+    });
+}
+
+armAudioUnlock();
+
+// Coming back to the tab or app is another moment audio may have been cut
+document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && audioContext && audioContext.state !== 'running') {
+        armAudioUnlock();
+    }
+});
 
 // Water sounds are mostly noise shaped by filters, not clean tones, so this
 // builds a short burst of white noise to use as the raw material for
