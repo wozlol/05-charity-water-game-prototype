@@ -7,6 +7,7 @@ const bucket = document.getElementById('bucket');
 const bucketFillElement = document.getElementById('bucket-fill');
 const bucketCracksSvg = document.getElementById('bucket-cracks');
 const filterElement = document.getElementById('filter');
+const filterCracksSvg = document.getElementById('filter-cracks');
 const livesDisplay = document.getElementById('lives-display');
 const bucketsDisplay = document.getElementById('buckets-display');
 const levelDisplay = document.getElementById('level-display');
@@ -70,6 +71,12 @@ let bucketsCompleted = 0;
 // How many times the bucket has been cracked by trash (0-3). Three cracks
 // and it explodes.
 let bucketCracks = 0;
+
+// The filter is breakable like the bucket: two cracks, then the third trash
+// hit blows it up. It stays gone until the next bucket is filled.
+let filterCracks = 0;
+let filterBroken = false;
+let filterExplodeTimeoutId = null;
 
 // True while the bucket is mid-exit or mid-entrance, so movement and
 // physics pause instead of fighting the CSS animation
@@ -508,7 +515,7 @@ gameArea.addEventListener('mousemove', function (event) {
 
 // Where the finger sits relative to the bucket: about half a fingertip's
 // width above the top of the handle, so the finger never hides the bucket
-const TOUCH_GAP_ABOVE_HANDLE = 22;
+const TOUCH_GAP_ABOVE_HANDLE = 32;
 
 // Touch dragging: the bucket hangs just below the finger, on both axes
 gameArea.addEventListener('touchmove', function (event) {
@@ -638,6 +645,10 @@ function spawnBonusCleanDrops(originElement) {
 // Moves the filter each tick: gravity pulls it down slowly, friction slows
 // it down over time, and it bounces gently off the walls of the game area.
 function updateFilterPhysics() {
+    if (filterBroken) {
+        return;
+    }
+
     filterVY = filterVY + 0.11;
 
     filterX = filterX + filterVX;
@@ -676,7 +687,7 @@ function updateFilterPhysics() {
 // If the bucket bumps the filter, shove the filter along the bucket's
 // direction of travel, plus a little push straight away from the bucket.
 function checkBucketFilterCollision() {
-    if (bucketTransitioning) {
+    if (bucketTransitioning || filterBroken) {
         return;
     }
 
@@ -795,6 +806,104 @@ function triggerAreaWobble() {
     }, 500);
 }
 
+// --- Filter damage ---------------------------------------------------------
+
+// Trash that touches the filter cracks it, same as trash hitting the bucket
+function hitFilterWithTrash(dropInfo, dropIndex) {
+    const dropX = dropInfo.element.offsetLeft + (dropInfo.element.offsetWidth / 2);
+    const dropY = dropInfo.element.offsetTop + (dropInfo.element.offsetHeight / 2);
+    dropInfo.element.remove();
+    activeDrops.splice(dropIndex, 1);
+
+    // The impact knocks the filter downward and a little sideways
+    filterVY = filterVY + 1.2;
+    filterVX = filterVX + ((Math.random() * 3) - 1.5);
+
+    launchSplash(dropX, dropY, 'debris-splash', 9);
+    playTrashBumpSound();
+    crackFilter();
+}
+
+// One hit from trash: add a crack, and blow up on the third
+function crackFilter() {
+    filterCracks = filterCracks + 1;
+    addCrackVisual(filterCracks, filterCracksSvg, true);
+
+    filterElement.classList.add('bumped');
+    setTimeout(function () {
+        filterElement.classList.remove('bumped');
+    }, 200);
+
+    if (filterCracks >= 3) {
+        explodeFilter();
+    }
+}
+
+// The third hit: a big flash and shockwave, a burst of debris, a hard
+// shake of the whole board, and the filter is gone until a bucket is filled
+function explodeFilter() {
+    filterBroken = true;
+
+    const filterCenterX = filterX + (filterElement.offsetWidth / 2);
+    const filterCenterY = filterY + (filterElement.offsetHeight / 2);
+    launchSplash(filterCenterX, filterCenterY, 'debris-splash', 36);
+    launchSplash(filterCenterX, filterCenterY, 'clean-splash', 14);
+    playExplosionSound();
+    triggerAreaWobble();
+    filterElement.classList.add('exploding');
+
+    clearTimeout(filterExplodeTimeoutId);
+    filterExplodeTimeoutId = setTimeout(function () {
+        filterElement.classList.remove('exploding');
+        filterElement.classList.add('gone');
+    }, 450);
+}
+
+// Back to a pristine filter, used when a whole new game starts
+function resetFilterState() {
+    clearTimeout(filterExplodeTimeoutId);
+    filterBroken = false;
+    filterCracks = 0;
+    filterCracksSvg.innerHTML = '';
+    filterElement.classList.remove('gone', 'exploding', 'entering', 'shining');
+}
+
+// Filling a bucket repairs the filter: cracks are wiped with a shine, and
+// a destroyed filter falls back in like a new bucket does
+function restoreFilterAfterBucket() {
+    const wasBroken = filterBroken;
+    const wasCracked = filterCracks > 0;
+
+    if (!wasBroken && !wasCracked) {
+        return;
+    }
+
+    clearTimeout(filterExplodeTimeoutId);
+    filterCracks = 0;
+    filterCracksSvg.innerHTML = '';
+    filterElement.classList.remove('exploding');
+
+    if (wasBroken) {
+        filterBroken = false;
+        filterX = (gameArea.clientWidth - filterElement.offsetWidth) / 2;
+        filterY = gameArea.clientHeight * 0.25;
+        filterVX = 0;
+        filterVY = 0;
+        filterElement.style.left = `${filterX}px`;
+        filterElement.style.top = `${filterY}px`;
+        filterElement.classList.remove('gone');
+        filterElement.classList.add('entering');
+        setTimeout(function () {
+            filterElement.classList.remove('entering');
+        }, 750);
+    }
+
+    filterElement.classList.add('shining');
+    setTimeout(function () {
+        filterElement.classList.remove('shining');
+    }, 1300);
+}
+
 // --- Cracking, exploding, and swapping buckets --------------------------
 
 // Recursively builds a jagged, branching crack line starting at (x, y)
@@ -828,27 +937,44 @@ function buildCrackBranch(x, y, angle, length, depth, segments) {
 // side of the bucket (where trash would bump it) and branching inward.
 // Deeper crackLevel means more branching, so the third crack looks like
 // the bucket is about to fall apart.
-function addCrackVisual(crackLevel) {
-    if (!bucketCracksSvg) {
+function addCrackVisual(crackLevel, targetSvg, isRound) {
+    if (!targetSvg) {
         return;
     }
 
-    const fromLeftSide = Math.random() < 0.5;
-    const startX = fromLeftSide ? 3 : 97;
-    const startY = 10 + (Math.random() * 75);
-    const initialAngle = fromLeftSide
-        ? (Math.random() * 60) - 30
-        : 180 + ((Math.random() * 60) - 30);
+    let startX;
+    let startY;
+    let initialAngle;
+    let firstLength = 20;
+
+    if (isRound) {
+        // The filter is a circle: start on a random point of its rim and
+        // head back in toward the middle
+        const rimAngle = Math.random() * 360;
+        const rimRadians = (rimAngle * Math.PI) / 180;
+        startX = 50 + (Math.cos(rimRadians) * 46);
+        startY = 50 + (Math.sin(rimRadians) * 46);
+        initialAngle = rimAngle + 180 + ((Math.random() * 50) - 25);
+        firstLength = 22;
+    } else {
+        const fromLeftSide = Math.random() < 0.5;
+        startX = fromLeftSide ? 3 : 97;
+        startY = 10 + (Math.random() * 75);
+        initialAngle = fromLeftSide
+            ? (Math.random() * 60) - 30
+            : 180 + ((Math.random() * 60) - 30);
+    }
+
     const depth = 1 + crackLevel;
     const segments = [];
 
-    buildCrackBranch(startX, startY, initialAngle, 20, depth, segments);
+    buildCrackBranch(startX, startY, initialAngle, firstLength, depth, segments);
 
     segments.forEach(function (d, i) {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', d);
-        path.setAttribute('class', 'crack-line');
-        bucketCracksSvg.appendChild(path);
+        path.setAttribute('class', isRound ? 'crack-line filter-crack-line' : 'crack-line');
+        targetSvg.appendChild(path);
 
         const segmentLength = path.getTotalLength();
         path.style.strokeDasharray = `${segmentLength}`;
@@ -872,7 +998,7 @@ function clearCrackVisuals() {
 // One hit from trash: add a crack, and explode once there are too many
 function crackBucket() {
     bucketCracks = bucketCracks + 1;
-    addCrackVisual(bucketCracks);
+    addCrackVisual(bucketCracks, bucketCracksSvg, false);
 
     if (bucketCracks >= 3) {
         // A life is only lost once the bucket is actually gone, same as
@@ -1054,6 +1180,7 @@ function completeBucket() {
     launchConfetti(20);
     playBucketCompleteSound();
     showNextRiver();
+    restoreFilterAfterBucket();
     exitBucketSuccess();
 }
 
@@ -1206,7 +1333,12 @@ function gameLoop() {
 
         const dropRect = dropElement.getBoundingClientRect();
 
-        if (dropInfo.type === 'dirty' && isColliding(dropRect, filterRect)) {
+        if (!filterBroken && dropInfo.type === 'obstacle' && isColliding(dropRect, filterRect)) {
+            hitFilterWithTrash(dropInfo, i);
+            continue;
+        }
+
+        if (!filterBroken && dropInfo.type === 'dirty' && isColliding(dropRect, filterRect)) {
             filterDrop(dropInfo);
         }
 
@@ -1288,6 +1420,8 @@ function startGame() {
     bucketTiltVelocity = 0;
     bucketShakeUntil = 0;
 
+    resetFilterState();
+
     // Place the filter roughly in the upper-middle of the game area
     filterX = (gameArea.clientWidth - filterElement.offsetWidth) / 2;
     filterY = gameArea.clientHeight * 0.25;
@@ -1350,6 +1484,7 @@ function resetGame() {
     bucketTransitioning = false;
     bucket.classList.remove('entering', 'exiting-success', 'exiting-contaminated', 'exploding');
     clearCrackVisuals();
+    resetFilterState();
     livesDisplay.textContent = '💧💧💧';
     levelDisplay.textContent = level;
     bucketsDisplay.textContent = bucketsCompleted;
