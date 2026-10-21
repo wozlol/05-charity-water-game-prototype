@@ -1206,6 +1206,25 @@ button.click-wobble {
     opacity: 0;
 }
 
+/* Typewriter-style credit line at the very bottom of the page. The brand
+   name stays lowercase on purpose, as charity: water writes it. */
+#site-footer {
+    position: relative;
+    z-index: 1;
+    margin: 18px auto 14px;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85rem;
+    color: #1a4d73;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+#site-footer a {
+    color: inherit;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
 #controls {
     display: flex;
     justify-content: center;
