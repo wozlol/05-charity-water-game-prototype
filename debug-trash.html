@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trash Debug | Bucket Master</title>
+    <!-- Not linked from the game. Reuses styles.css directly so this view
+         always matches whatever the drop/obstacle shapes currently look
+         like, with no separate copy to keep in sync. -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            padding: 30px 16px 60px;
+        }
+
+        h1 {
+            color: #2E9DF7;
+            margin-bottom: 4px;
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 24px auto 0;
+        }
+
+        .debug-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 24px 10px 14px;
+            box-shadow: 0 4px 10px rgba(46, 157, 247, 0.2);
+        }
+
+        /* The game positions drops absolutely for falling; here they just
+           need to sit in normal flow inside the grid cell */
+        .debug-item .drop {
+            position: static;
+        }
+
+        .debug-item span {
+            font-size: 0.8rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trash &amp; Drop Debug View</h1>
+    <p>Every drop type and obstacle variant, for visual QA. Not linked from the game itself.</p>
+    <div id="grid"></div>
+
+    <script>
+        var types = [
+            { cls: 'clean', label: 'Clean drop' },
+            { cls: 'dirty', label: 'Dirty drop' },
+            { cls: 'obstacle', label: 'Oil slick' },
+            { cls: 'obstacle obstacle-can', label: 'Can' },
+            { cls: 'obstacle obstacle-bottle', label: 'Bottle' },
+            { cls: 'obstacle obstacle-tire', label: 'Tire' },
+            { cls: 'obstacle obstacle-banana', label: 'Banana peel' },
+            { cls: 'obstacle obstacle-paperball', label: 'Paper ball' },
+            { cls: 'obstacle obstacle-flipflop', label: 'Flip flop' },
+            { cls: 'obstacle obstacle-plank', label: 'Nail in plank' },
+            { cls: 'obstacle obstacle-screw', label: 'Screw' },
+            { cls: 'obstacle obstacle-juicebox', label: 'Juice box' }
+        ];
+
+        var grid = document.getElementById('grid');
+
+        types.forEach(function (type) {
+            var item = document.createElement('div');
+            item.className = 'debug-item';
+
+            var drop = document.createElement('div');
+            drop.className = 'drop ' + type.cls;
+            item.appendChild(drop);
+
+            var label = document.createElement('span');
+            label.textContent = type.label;
+            item.appendChild(label);
+
+            grid.appendChild(item);
+        });
+    </script>
+</body>
+</html>
