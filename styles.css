@@ -1340,22 +1340,29 @@ button.click-wobble {
         display: none !important;
     }
 
-    body.playing #logo,
     body.playing #title,
     body.playing #tagline {
         display: none;
     }
 
     body.playing header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
         width: fit-content;
-        padding: 5px;
+        padding: 6px 10px;
         margin-bottom: 8px;
+    }
+
+    body.playing #logo {
+        margin-bottom: 0;
     }
 
     body.playing #sound-toggle {
         position: static;
-        display: block;
-        margin: 0 auto;
+        flex-shrink: 0;
+        order: 2;
     }
 
     body.playing #stats-bar {
