@@ -23,7 +23,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20261021090148">
+    <link rel="stylesheet" href="styles.css?v=20261021090659">
 </head>
 <body>
 
@@ -47,25 +47,6 @@
         <p id="tagline">Fill buckets, don't get contaminated.</p>
     </header>
 
-    <!-- Stats bar: shows score, lives, buckets filled, and level while playing -->
-    <section id="stats-bar">
-        <div class="stat">
-            <span class="stat-label">Buckets</span>
-            <span id="buckets-display">0</span>
-        </div>
-        <div class="stat">
-            <span class="stat-label">Time</span>
-            <span id="timer-display">0:00</span>
-        </div>
-        <div class="stat">
-            <span class="stat-label">Lives</span>
-            <span id="lives-display">💧💧💧</span>
-        </div>
-        <div class="stat">
-            <span class="stat-label">Level</span>
-            <span id="level-display">1</span>
-        </div>
-    </section>
 
     <!-- The game area is where the bucket, filter, and falling drops live -->
     <main id="game-area">
@@ -129,6 +110,26 @@
 
     </main>
 
+    <!-- Stats bar: shows score, lives, buckets filled, and level while playing -->
+    <section id="stats-bar">
+        <div class="stat">
+            <span class="stat-label">Buckets</span>
+            <span id="buckets-display">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Time</span>
+            <span id="timer-display">0:00</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Lives</span>
+            <span id="lives-display">💧💧💧</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Level</span>
+            <span id="level-display">1</span>
+        </div>
+    </section>
+
     <!-- On-screen controls: movement is mouse or touch drag only -->
     <section id="controls">
         <button id="pause-btn">Pause</button>
@@ -145,7 +146,7 @@
     <!-- A visible build marker, bumped on every change, so it's always
          obvious whether the browser is actually showing current code or
          a cached copy -- independent of judging any visual detail. -->
-    <p id="build-marker" style="position: fixed; bottom: 2px; right: 6px; font-size: 10px; color: rgba(0, 0, 0, 0.35); margin: 0; z-index: 9999; font-family: monospace; pointer-events: none;">build 2026-10-21 09:01:48</p>
+    <p id="build-marker" style="position: fixed; bottom: 2px; right: 6px; font-size: 10px; color: rgba(0, 0, 0, 0.35); margin: 0; z-index: 9999; font-family: monospace; pointer-events: none;">build 2026-10-21 09:06:59</p>
 
     <script src="script.js?v=20261021083948"></script>
 </body>
