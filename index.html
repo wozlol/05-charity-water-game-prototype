@@ -23,7 +23,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20261021083725">
+    <link rel="stylesheet" href="styles.css?v=20261021083930">
 </head>
 <body>
 
@@ -104,16 +104,17 @@
         <!-- Shown when lives run out -->
         <div id="game-over-screen" class="overlay hidden">
             <h2 id="game-over-title">Game Over</h2>
-            <p id="final-buckets"></p>
-            <p id="final-time"></p>
-            <p id="final-rate"></p>
-            <p id="collection-rate"></p>
             <div id="name-entry" class="hidden">
                 <p>New top bucket rate! Enter your name:</p>
                 <input type="text" id="name-input" maxlength="7" placeholder="Your name">
                 <button id="save-name-btn">Save</button>
             </div>
             <div class="leaderboard">
+                <div class="final-run">
+                    <h3>Your Run</h3>
+                    <p id="final-rate" class="final-rate"></p>
+                    <p id="final-details" class="final-details"></p>
+                </div>
                 <h3>Top Bucket Rates</h3>
                 <ol id="game-over-leaderboard-list"></ol>
             </div>
@@ -140,8 +141,8 @@
     <!-- A visible build marker, bumped on every change, so it's always
          obvious whether the browser is actually showing current code or
          a cached copy -- independent of judging any visual detail. -->
-    <p id="build-marker" style="position: fixed; bottom: 2px; right: 6px; font-size: 10px; color: rgba(0, 0, 0, 0.35); margin: 0; z-index: 9999; font-family: monospace; pointer-events: none;">build 2026-10-21 08:37:25</p>
+    <p id="build-marker" style="position: fixed; bottom: 2px; right: 6px; font-size: 10px; color: rgba(0, 0, 0, 0.35); margin: 0; z-index: 9999; font-family: monospace; pointer-events: none;">build 2026-10-21 08:39:48</p>
 
-    <script src="script.js?v=20261021082045"></script>
+    <script src="script.js?v=20261021083948"></script>
 </body>
 </html>

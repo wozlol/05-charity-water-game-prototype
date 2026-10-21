@@ -1010,6 +1010,38 @@ body.playing .stat {
     color: #666;
 }
 
+#game-over-screen .leaderboard ol {
+    max-height: none;
+    overflow-y: visible;
+}
+
+/* The player's own run, shown as one highlighted block at the top of the
+   game-over scoreboard instead of a stack of separate text lines */
+.final-run {
+    margin-bottom: 8px;
+    padding: 6px 8px 8px;
+    border-radius: 10px;
+    background: rgba(46, 157, 247, 0.12);
+    border: 1px solid rgba(46, 157, 247, 0.35);
+}
+
+.final-run h3 {
+    margin-bottom: 2px;
+}
+
+.overlay .final-rate {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1a6fb8;
+}
+
+.overlay .final-details {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    color: #444;
+}
+
 /* Name-entry form shown after a run that cracks the top of the scoreboard */
 #name-entry {
     display: flex;

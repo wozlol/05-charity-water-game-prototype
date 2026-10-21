@@ -13,10 +13,8 @@ const levelDisplay = document.getElementById('level-display');
 const timerDisplay = document.getElementById('timer-display');
 const startScreen = document.getElementById('start-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
-const finalBucketsText = document.getElementById('final-buckets');
-const finalTimeText = document.getElementById('final-time');
 const finalRateText = document.getElementById('final-rate');
-const collectionRateText = document.getElementById('collection-rate');
+const finalDetailsText = document.getElementById('final-details');
 const nameEntry = document.getElementById('name-entry');
 const nameInput = document.getElementById('name-input');
 const saveNameBtn = document.getElementById('save-name-btn');
@@ -1173,7 +1171,7 @@ function renderLeaderboard(listElement, entries) {
     for (let i = 0; i < entries.length; i++) {
         const entry = entries[i];
         const item = document.createElement('li');
-        item.textContent = `${entry.name} — ${entry.bpm.toFixed(1)} buckets/min (${entry.buckets} in ${formatTime(entry.timeSeconds * 1000)})`;
+        item.textContent = `${entry.name} — ${entry.bpm.toFixed(1)}/min (${entry.buckets} in ${formatTime(entry.timeSeconds * 1000)})`;
         listElement.appendChild(item);
     }
 }
@@ -1310,14 +1308,12 @@ function endGame() {
 
     const bpm = computeBucketsPerMinute();
 
-    finalBucketsText.textContent = `Buckets filled: ${bucketsCompleted}`;
-    finalTimeText.textContent = `Time played: ${formatTime(elapsedMs)}`;
-    finalRateText.textContent = `Rate: ${bpm.toFixed(1)} buckets/min`;
+    finalRateText.textContent = `${bpm.toFixed(1)} buckets/min`;
 
     const collectionRate = cleanDropsSpawned > 0
         ? Math.round((cleanDropsCaught / cleanDropsSpawned) * 100)
         : 0;
-    collectionRateText.textContent = `Clean water collected: ${collectionRate}%`;
+    finalDetailsText.textContent = `${bucketsCompleted} buckets · ${formatTime(elapsedMs)} · ${collectionRate}% clean water`;
 
     renderLeaderboard(gameOverLeaderboardList, loadLeaderboard());
 
