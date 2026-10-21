@@ -1145,6 +1145,7 @@ function addScore(points) {
         dropSpeed = dropSpeed + Math.max(0.1, 0.3 - (level * 0.02));
         spawnDelay = Math.max(500, spawnDelay - Math.max(15, 45 - (level * 3)));
         restartSpawnTimer();
+        showNextRiver();
         launchConfetti(18);
         playLevelUpSound();
     }
@@ -1183,7 +1184,6 @@ function completeBucket() {
     launchSplash(bucketCenterX, bucketTopY, 'clean-splash', 16);
     launchConfetti(20);
     playBucketCompleteSound();
-    showNextRiver();
     restoreFilterAfterBucket();
     exitBucketSuccess();
 }
@@ -1550,7 +1550,7 @@ function setInitialRiver() {
     activeRiverLayer = 'a';
 }
 
-// Crossfades to the next river photo in the gallery, used on every full bucket
+// Crossfades to the next river photo in the gallery, used on every level-up
 function showNextRiver() {
     currentRiverIndex = (currentRiverIndex + 1) % riverBackgrounds.length;
     const nextPath = riverBackgrounds[currentRiverIndex];
