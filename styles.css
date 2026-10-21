@@ -407,6 +407,23 @@ body.playing .stat {
     75%      { border-radius: 26px 14px 24px 16px / 14px 24px 16px 26px; }
 }
 
+/* The title panel and stats bar get the same jelly corner wobble while
+   nobody's playing, each offset in time so they don't move in lockstep */
+header {
+    animation: areaWobble 7s ease-in-out infinite;
+    animation-delay: -2.3s;
+}
+
+#stats-bar {
+    animation: areaWobble 7s ease-in-out infinite;
+    animation-delay: -4.6s;
+}
+
+body.playing header,
+body.playing #stats-bar {
+    animation: none;
+}
+
 /* A sharp, violent version triggered briefly whenever the bucket takes damage */
 #game-area.damaged {
     animation: areaWobbleViolent 500ms ease-in-out;
