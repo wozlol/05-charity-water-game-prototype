@@ -824,7 +824,7 @@ body.playing .stat {
     border-radius: 35% / 18%;
     border: 2px solid #8a2424;
     background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cline x1='50' y1='28' x2='18' y2='56' stroke='%23111' stroke-width='17' stroke-linecap='round'/%3E%3Cline x1='50' y1='28' x2='82' y2='56' stroke='%23111' stroke-width='17' stroke-linecap='round'/%3E%3Cline x1='50' y1='28' x2='50' y2='7' stroke='%23111' stroke-width='17' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='28' r='11' fill='%23111'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cline x1='50' y1='16' x2='20' y2='38' stroke='%23111' stroke-width='15' stroke-linecap='round'/%3E%3Cline x1='50' y1='16' x2='80' y2='38' stroke='%23111' stroke-width='15' stroke-linecap='round'/%3E%3Cline x1='50' y1='16' x2='50' y2='5' stroke='%23111' stroke-width='15' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='16' r='10' fill='%23111'/%3E%3C/svg%3E"),
         linear-gradient(160deg, #ff6b6b 0%, #e94b4b 60%, #c23a3a 100%);
     background-size: 100% 100%, 100% 100%;
     background-repeat: no-repeat, no-repeat;
@@ -841,8 +841,8 @@ body.playing .stat {
         /* head listed first (topmost) so it covers the shaft underneath
            at the overlap; shaft's box now starts higher, well under the
            head's own box, so no sliver of it pokes out above the head */
-        linear-gradient(90deg, transparent 30%, #c4c4c4 32%, #e8e8e8 50%, #c4c4c4 68%, transparent 70%) 0 26% / 100% 10% no-repeat,
-        linear-gradient(90deg, transparent 46%, #9a9a9a 47%, #c4c4c4 50%, #9a9a9a 53%, transparent 54%) 0 32% / 100% 36% no-repeat,
+        linear-gradient(90deg, transparent 30%, #c4c4c4 32%, #e8e8e8 50%, #c4c4c4 68%, transparent 70%) 0 26.67% / 100% 10% no-repeat,
+        linear-gradient(90deg, transparent 46%, #9a9a9a 47%, #c4c4c4 50%, #9a9a9a 53%, transparent 54%) 0 50% / 100% 40% no-repeat,
         repeating-linear-gradient(180deg, rgba(90, 55, 20, 0.25) 0 2px, transparent 2px 7px),
         linear-gradient(180deg, #a9703a 0%, #8a5a2b 60%, #6e4720 100%);
     border: 2px solid #5a3a18;
@@ -873,15 +873,16 @@ body.playing .stat {
    achieved without a `border` (which doesn't follow clip-path) or a
    drop-shadow (too faint to read clearly). Fold lines and the white peak
    seam are layered the same way. */
-/* Narrower box (20px instead of 28px) so the narrowing is obvious; the Y sits
-   low on the roof triangle with thick lines so it survives at icon size. */
+/* Narrow 20px carton drawn as one outlined SVG: gable roof, short white flap
+   line at the peak, and a Y fold low on the roof. */
 .drop.obstacle.obstacle-milkbox {
     width: 20px;
     border-radius: 0;
     border: none;
-    clip-path: polygon(6% 100%, 6% 38%, 50% 6%, 94% 38%, 94% 100%);
-    background-color: #444;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='16,96 16,41 50,15 84,41 84,96' fill='white'/%3E%3Cline x1='40' y1='13' x2='60' y2='13' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3Cline x1='28' y1='42' x2='50' y2='33' stroke='%23444' stroke-width='9' stroke-linecap='round'/%3E%3Cline x1='72' y1='42' x2='50' y2='33' stroke='%23444' stroke-width='9' stroke-linecap='round'/%3E%3Cline x1='50' y1='33' x2='50' y2='22' stroke='%23444' stroke-width='9' stroke-linecap='round'/%3E%3C/svg%3E");
+    box-shadow: none;
+    filter: drop-shadow(0 0 5px rgba(245, 64, 44, 0.6));
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='9,96 9,38 50,9 91,38 91,96' fill='white' stroke='%23444' stroke-width='8' stroke-linejoin='miter'/%3E%3Cline x1='41' y1='10' x2='59' y2='10' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3Cline x1='24' y1='44' x2='50' y2='33' stroke='%23444' stroke-width='8' stroke-linecap='round'/%3E%3Cline x1='76' y1='44' x2='50' y2='33' stroke='%23444' stroke-width='8' stroke-linecap='round'/%3E%3Cline x1='50' y1='33' x2='50' y2='21' stroke='%23444' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E");
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
