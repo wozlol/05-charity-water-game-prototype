@@ -36,10 +36,9 @@ const riverBgB = document.getElementById('river-bg-b');
 // How many clean drops it takes to fill one bucket
 const FILL_STEP = 10;
 
-// Obstacle drops get tagged with one of these for visual variety. An
-// empty string keeps the default oil-slick look.
+// Obstacle drops get tagged with one of these for visual variety
 const obstacleVariants = [
-    '', 'obstacle-can', 'obstacle-bottle', 'obstacle-tire', 'obstacle-banana',
+    'obstacle-bowling', 'obstacle-can', 'obstacle-bottle', 'obstacle-tire', 'obstacle-banana',
     'obstacle-paperball', 'obstacle-flipflop', 'obstacle-plank', 'obstacle-screw', 'obstacle-juicebox'
 ];
 
@@ -542,12 +541,23 @@ function spawnDrop() {
 
     if (dropType === 'obstacle') {
         const variant = obstacleVariants[Math.floor(Math.random() * obstacleVariants.length)];
-        if (variant) {
-            drop.classList.add(variant);
-        }
+        drop.classList.add(variant);
+        // Each piece of trash tumbles at its own random (but unhurried)
+        // speed instead of a uniform rate
+        drop.style.animationDuration = `${(2.6 + (Math.random() * 2.2)).toFixed(2)}s`;
     } else {
         // Each water drop wiggles at its own slightly different speed
-        drop.style.animationDuration = `${(1.2 + (Math.random() * 1.2)).toFixed(2)}s`;
+        const wiggleDuration = 1.2 + (Math.random() * 1.2);
+
+        // A rare bonus dirty drop: filtering it (not catching it) spawns
+        // extra clean drops. It needs its own fixed-speed pulse animation
+        // alongside the randomized wiggle, so both durations are listed.
+        if (dropType === 'dirty' && Math.random() < 0.08) {
+            drop.classList.add('dirty-bonus');
+            drop.style.animationDuration = `${wiggleDuration.toFixed(2)}s, 0.9s`;
+        } else {
+            drop.style.animationDuration = `${wiggleDuration.toFixed(2)}s`;
+        }
     }
 
     const areaWidth = gameArea.clientWidth;
@@ -571,8 +581,10 @@ function isColliding(rectA, rectB) {
 
 // A dirty drop that touches the filter becomes clean, with a little celebration
 function filterDrop(dropInfo) {
+    const wasBonus = dropInfo.element.classList.contains('dirty-bonus');
+
     dropInfo.type = 'clean';
-    dropInfo.element.classList.remove('dirty');
+    dropInfo.element.classList.remove('dirty', 'dirty-bonus');
     dropInfo.element.classList.add('clean');
     cleanDropsSpawned = cleanDropsSpawned + 1;
 
@@ -585,6 +597,38 @@ function filterDrop(dropInfo) {
     const filterCenterY = filterY + (filterElement.offsetHeight / 2);
     launchSplash(filterCenterX, filterCenterY, 'clean-splash', 5);
     playFilterPingSound();
+
+    if (wasBonus) {
+        spawnBonusCleanDrops(dropInfo.element);
+    }
+}
+
+// A filtered bonus drop turns into clean water right where it was, plus
+// two more clean drops nearby and above it (never below or far to the
+// side), as a little reward
+function spawnBonusCleanDrops(originElement) {
+    const originLeft = parseFloat(originElement.style.left);
+    const originTop = parseFloat(originElement.style.top);
+    const areaWidth = gameArea.clientWidth;
+
+    for (let i = 0; i < 2; i++) {
+        const offsetX = (Math.random() * 60) - 30;
+        const offsetY = -(20 + (Math.random() * 40));
+        const newLeft = Math.max(0, Math.min(areaWidth - 28, originLeft + offsetX));
+        const newTop = originTop + offsetY;
+
+        const drop = document.createElement('div');
+        drop.classList.add('drop', 'clean');
+        drop.style.left = `${newLeft}px`;
+        drop.style.top = `${newTop}px`;
+        drop.style.animationDuration = `${(1.2 + (Math.random() * 1.2)).toFixed(2)}s`;
+
+        gameArea.appendChild(drop);
+        activeDrops.push({ element: drop, type: 'clean' });
+        cleanDropsSpawned = cleanDropsSpawned + 1;
+    }
+
+    launchConfetti(10);
 }
 
 // --- Filter physics ---------------------------------------------------
@@ -724,7 +768,7 @@ function maybeSloshSplash() {
     launchSplash(bucketCenterX, bucketTopY, 'clean-splash', count);
 }
 
-// --- Bucket jamming (from hitting an oil slick) ------------------------
+// --- Bucket jamming (from hitting trash) --------------------------------
 
 function jamBucket() {
     bucketJammed = true;

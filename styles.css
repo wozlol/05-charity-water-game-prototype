@@ -670,30 +670,54 @@ body.playing .stat {
     box-shadow: 0 0 9px rgba(138, 90, 43, 0.55);
 }
 
+/* A rare bonus dirty drop: neon green and pulsing, worth filtering
+   instead of avoiding. Keeps the wiggle but adds a second, independent
+   pulse animation (its own fixed-speed duration is appended by
+   script.js, since the wiggle's duration is randomized per drop). */
+@keyframes bonusPulse {
+    0%, 100% { box-shadow: 0 0 10px 2px rgba(79, 203, 83, 0.85); filter: brightness(1); }
+    50%      { box-shadow: 0 0 22px 7px rgba(140, 255, 120, 1); filter: brightness(1.35); }
+}
+
+.drop.dirty.dirty-bonus {
+    background: radial-gradient(circle at 35% 30%, #d9ffb8 0%, #4FCB53 55%, #1f8a2a 100%);
+    animation-name: dropWiggle, bonusPulse;
+    animation-timing-function: ease-in-out, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+}
+
 /* Trash slowly tumbles as it falls */
 @keyframes dropSpin {
     from { transform: rotate(0deg); }
     to   { transform: rotate(360deg); }
 }
 
-/* Default obstacle look: an oil slick, with three finger holes like a
-   bowling ball. script.js randomly tags obstacle drops with one of the
-   variant classes below for visual variety. */
+/* Shared obstacle look: a red hazard border and glow. script.js randomly
+   tags obstacle drops with one of the variant classes below for visual
+   shape/color; some variants override or remove this border themselves. */
 .drop.obstacle {
     border-radius: 50%;
     animation: dropSpin 3.4s linear infinite;
+    border: 2px solid #F5402C;
+    box-shadow: 0 0 10px rgba(245, 64, 44, 0.6);
+}
+
+/* A bowling ball: three finger holes, no hazard border (it's a smooth
+   sphere, not a rimmed object) */
+.drop.obstacle.obstacle-bowling {
+    border: none;
     background:
         radial-gradient(circle 2.3px at 40% 34%, #040404 0%, #040404 55%, rgba(0, 0, 0, 0.5) 72%, transparent 85%),
         radial-gradient(circle 2.3px at 58% 36%, #040404 0%, #040404 55%, rgba(0, 0, 0, 0.5) 72%, transparent 85%),
         radial-gradient(circle 2.3px at 49% 52%, #040404 0%, #040404 55%, rgba(0, 0, 0, 0.5) 72%, transparent 85%),
         radial-gradient(circle at 35% 30%, #999 0%, #333333 65%, #111 100%);
-    border: 2px solid #F5402C;
-    box-shadow: 0 0 10px rgba(245, 64, 44, 0.6);
 }
 
-/* A crushed can: horizontal ridges across a dented metal body */
+/* A crushed can: horizontal ridges across a dented metal body, no
+   hazard border (the can's own metal edge reads clearly enough) */
 .drop.obstacle.obstacle-can {
     border-radius: 15% / 10%;
+    border: none;
     background:
         repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 6px),
         linear-gradient(90deg, #7d8286 0%, #c9cdd1 35%, #9aa0a4 55%, #5e6366 100%);
@@ -702,77 +726,59 @@ body.playing .stat {
 /* A plastic bottle: a narrow neck above a wider translucent body */
 .drop.obstacle.obstacle-bottle {
     border-radius: 0;
-    clip-path: polygon(38% 0%, 62% 0%, 62% 16%, 85% 30%, 85% 100%, 15% 100%, 15% 30%, 38% 16%);
+    clip-path: polygon(40.4% 0%, 59.6% 0%, 59.6% 16%, 78% 30%, 78% 100%, 22% 100%, 22% 30%, 40.4% 16%);
     background: linear-gradient(180deg, rgba(158, 206, 112, 0.55) 0%, rgba(85, 139, 47, 0.75) 100%);
 }
 
 /* A tire: a tread-studded rubber ring with a hub and lug nuts, a little
    bigger than the other trash so it reads clearly */
+/* Just the rubber ring with a genuinely empty hole through the middle
+   (via mask, not a lighter-colored center) -- a wheel's hub and lug nuts
+   aren't part of the tire itself */
 .drop.obstacle.obstacle-tire {
     width: 33px;
     height: 33px;
     border-radius: 50%;
+    border: none;
     background:
-        radial-gradient(circle 1.6px at 50% 24%, #555 90%, transparent 95%),
-        radial-gradient(circle 1.6px at 71% 38%, #555 90%, transparent 95%),
-        radial-gradient(circle 1.6px at 63% 64%, #555 90%, transparent 95%),
-        radial-gradient(circle 1.6px at 37% 64%, #555 90%, transparent 95%),
-        radial-gradient(circle 1.6px at 29% 38%, #555 90%, transparent 95%),
-        repeating-conic-gradient(#1c1c1c 0deg 9deg, #2d2d2d 9deg 18deg),
-        radial-gradient(circle at 50% 50%, #d8d8d8 0% 17%, #8a8a8a 18% 23%, transparent 24% 100%);
-    box-shadow:
-        inset 0 0 0 3px #050505,
-        0 0 10px rgba(245, 64, 44, 0.6);
+        /* solid band for the inner half of the ring, so the spoked
+           tread pattern underneath only shows in the outer half. Fewer,
+           wider, higher-contrast spokes so they actually read at this
+           size instead of blurring into a flat ring. `circle` alone
+           defaults to farthest-corner sizing, which measures percentages
+           against the box's CORNER distance, not the rendered circle's
+           own edge -- that mismatch was pushing the "outer half" past
+           the visible circle entirely, hiding the spokes completely.
+           farthest-side fixes percentages to the actual circle radius. */
+        radial-gradient(circle farthest-side, transparent 0% 30%, #2a2a2a 30% 65%, transparent 65% 100%),
+        repeating-conic-gradient(#2a2a2a 0deg 22.5deg, #767676 22.5deg 45deg);
+    -webkit-mask-image: radial-gradient(circle farthest-side, transparent 0% 30%, #000 33% 100%);
+    mask-image: radial-gradient(circle farthest-side, transparent 0% 30%, #000 33% 100%);
+    box-shadow: 0 0 10px rgba(245, 64, 44, 0.6);
 }
 
 /* A banana peel: three curled strips splayed from a center point */
+/* Two actual bananas in a bunch: one curved banana shape, drawn once as
+   an SVG path, duplicated and rotated around the shared stem point for
+   the second, slightly darker one. SVG instead of a clip-path polygon
+   since a smooth curved fruit shape needs real curves, not many short
+   straight segments. */
+/* box-shadow (from the shared .drop.obstacle rule) follows the element's
+   actual square box, which showed as a glowing square now that there's
+   no clip-path to constrain it. drop-shadow follows the SVG's own alpha
+   shape instead, so it hugs the bananas themselves. Second banana is
+   rotated only 18deg around the shared stem (not 125deg) for a slight,
+   realistic fan instead of a wide splay, and the path is fattened
+   (wider gap between its outer and inner curves). */
 .drop.obstacle.obstacle-banana {
     border-radius: 0;
-    /* No border: the shared hazard border wraps the full square box, and
-       since this shape's petal tips come close to that box edge at only
-       a few points, the border bunched up into solid caps instead of a
-       clean outline. The glow still reads as a hazard without it. */
     border: none;
-    background:
-        radial-gradient(circle 2px at 50% 50%, #6e4a1f 0%, #6e4a1f 60%, transparent 70%),
-        radial-gradient(circle 1.4px at 40% 65%, rgba(110, 74, 31, 0.6) 90%, transparent 95%),
-        radial-gradient(circle 1.4px at 68% 62%, rgba(110, 74, 31, 0.6) 90%, transparent 95%),
-        linear-gradient(135deg, #fff1b8 0%, #ffe066 35%, #ffd23f 65%, #e6b800 100%);
-    /* Three wide, rounded strips peeled back from a center point, the
-       classic banana-peel silhouette instead of pointed star petals */
-    clip-path: polygon(
-        50.0% 50.0%,
-        43.0% 36.0%,
-        37.0% 22.0%,
-        37.0% 10.0%,
-        44.0% 3.0%,
-        50.0% 1.0%,
-        56.0% 3.0%,
-        63.0% 10.0%,
-        63.0% 22.0%,
-        57.0% 36.0%,
-        50.0% 50.0%,
-        65.6% 50.9%,
-        80.7% 52.7%,
-        91.1% 58.7%,
-        93.7% 68.3%,
-        92.4% 74.5%,
-        87.7% 78.7%,
-        78.1% 81.3%,
-        67.7% 75.3%,
-        58.6% 63.1%,
-        50.0% 50.0%,
-        41.4% 63.1%,
-        32.3% 75.3%,
-        21.9% 81.3%,
-        12.3% 78.7%,
-        7.6% 74.5%,
-        6.3% 68.3%,
-        8.9% 58.7%,
-        19.3% 52.7%,
-        34.4% 50.9%,
-        50.0% 50.0%
-    );
+    box-shadow: none;
+    filter: drop-shadow(0 0 5px rgba(245, 64, 44, 0.6));
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M48,85 C15,75 2,50 12,25 C18,8 38,0 55,4 C48,10 36,18 28,32 C16,50 22,68 48,85 Z' fill='%23ffd23f' stroke='%23c99a00' stroke-width='1.8'/%3E%3Cpath d='M48,85 C15,75 2,50 12,25 C18,8 38,0 55,4 C48,10 36,18 28,32 C16,50 22,68 48,85 Z' fill='%23e6b800' stroke='%23b08700' stroke-width='1.8' transform='rotate(32 44 83)'/%3E%3Ccircle cx='48' cy='85' r='3.5' fill='%236e4a1f'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
 }
 
 /* A crumpled paper ball: an irregular off-white lump with a few faint
@@ -796,23 +802,40 @@ body.playing .stat {
 }
 
 /* A flip flop: an oval rubber sole with a thong strap meeting at a dot */
+/* A narrow rounded-rectangle sole with a Y-shaped thong strap toward one
+   end (the classic single-post flip-flop), not an X spanning the whole
+   sole like a mash-up of other sandal styles */
+/* The rounded-rectangle sole stays exactly as before; only the strap
+   pattern changes. Drawn as an inline SVG instead of CSS gradient-line
+   tricks, which kept producing an X (or worse) instead of a clean Y --
+   SVG gives exact line endpoints with no angle math to get wrong. */
+/* Whole shape drawn as one SVG (sole + its own stroke outline + the Y
+   strap), instead of mixing a CSS clip-path/gradient with a separate
+   background-image layer -- that layering kept silently failing to show
+   the strap at all. */
 .drop.obstacle.obstacle-flipflop {
-    border-radius: 30% 30% 25% 25% / 40% 40% 20% 20%;
-    background:
-        radial-gradient(circle 1.8px at 50% 38%, #222 90%, transparent 95%),
-        linear-gradient(200deg, transparent 47%, #222 48.5%, #222 51.5%, transparent 53%),
-        linear-gradient(160deg, transparent 47%, #222 48.5%, #222 51.5%, transparent 53%),
-        linear-gradient(160deg, #ff6b6b 0%, #e94b4b 60%, #c23a3a 100%);
-    border: 2px solid #8a2424;
+    width: 14px;
+    height: 28px;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    filter: drop-shadow(0 0 5px rgba(245, 64, 44, 0.6));
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='3' width='90' height='94' rx='35' ry='22' fill='%23e94b4b' stroke='%238a2424' stroke-width='4'/%3E%3Cline x1='15' y1='20' x2='50' y2='42' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Cline x1='85' y1='20' x2='50' y2='42' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Cline x1='50' y1='42' x2='50' y2='66' stroke='%23222' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='42' r='5' fill='%23222'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
 }
 
 /* A wood plank with a nail driven through it: horizontal grain, a nail
    shaft, and a nail head */
+/* A nail shaped like a T (a flat head bar over a thin shaft), confined
+   to a span of the plank's height so it reads as driven into the wood,
+   not a strap running the whole length of the board */
 .drop.obstacle.obstacle-plank {
     border-radius: 3px;
     background:
-        radial-gradient(circle 2.6px at 50% 38%, #cfcfcf 0%, #cfcfcf 40%, #8a8a8a 55%, transparent 60%),
-        linear-gradient(90deg, transparent 47%, #9a9a9a 48%, #9a9a9a 52%, transparent 53%),
+        linear-gradient(90deg, transparent 30%, #c4c4c4 32%, #e8e8e8 50%, #c4c4c4 68%, transparent 70%) 0 26% / 100% 10% no-repeat,
+        linear-gradient(90deg, transparent 46%, #9a9a9a 47%, #c4c4c4 50%, #9a9a9a 53%, transparent 54%) 0 34% / 100% 34% no-repeat,
         repeating-linear-gradient(180deg, rgba(90, 55, 20, 0.25) 0 2px, transparent 2px 7px),
         linear-gradient(180deg, #a9703a 0%, #8a5a2b 60%, #6e4720 100%);
     border: 2px solid #5a3a18;
@@ -839,14 +862,26 @@ body.playing .stat {
    the top (via clip-path, not just a line) and a label stripe */
 /* A gable-top carton silhouette (peaked roof fold like a real juice/milk
    carton), unambiguous without needing a protruding straw detail */
+/* A white milk carton: a gable-top fold with a ridge line plus the two
+   diagonal roof-to-wall creases, and fold lines on the body below too
+   (not just the tent) */
+/* Super simple: a triangle on a rectangle, a short white seam line near
+   the peak, and three lines making a Y on the triangle for the fold.
+   Drawn as an inline SVG for exact line placement, with a drop-shadow
+   outline since a plain `border` doesn't follow clip-path edges. */
+/* The whole carton -- silhouette, its own stroke outline, the white
+   peak seam, and the Y fold -- drawn directly in one SVG, rather than a
+   CSS clip-path paired with a separate drop-shadow trying to fake an
+   outline around it (too faint to read as "an outline" at this size). */
 .drop.obstacle.obstacle-juicebox {
     border-radius: 0;
-    clip-path: polygon(10% 100%, 10% 35%, 50% 8%, 90% 35%, 90% 100%);
-    background:
-        linear-gradient(0deg, rgba(255, 255, 255, 0.4) 0% 25%, transparent 25% 100%),
-        linear-gradient(200deg, transparent 0% 55%, rgba(0, 0, 0, 0.15) 55% 57%, transparent 57% 100%),
-        linear-gradient(180deg, #FF902A 0%, #F5402C 60%, #c23325 100%);
-    border: 2px solid #a82b1d;
+    border: none;
+    box-shadow: none;
+    filter: drop-shadow(0 0 5px rgba(245, 64, 44, 0.6));
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='10,100 10,35 50,8 90,35 90,100' fill='white' stroke='%23444' stroke-width='5'/%3E%3Cline x1='42' y1='9' x2='58' y2='9' stroke='white' stroke-width='4.5' stroke-linecap='round'/%3E%3Cline x1='22' y1='33' x2='50' y2='20' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='78' y1='33' x2='50' y2='20' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3Cline x1='50' y1='20' x2='50' y2='11' stroke='%23444' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
 }
 
 /* Splash particles, fired off whenever the bucket catches something */
