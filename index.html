@@ -29,8 +29,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20261021122129">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=20261027200226">
 </head>
 <body>
 
@@ -85,10 +85,16 @@
         <!-- Shown before the game starts -->
         <div id="start-screen" class="overlay">
             <h2>Ready to fill some buckets?</h2>
-            <p>Move with your mouse or touch. Catch blue drops, dodge brown ones and oil slicks. Bump the filter into dirty drops to clean them.</p>
+            <p>Move with your mouse or touch. Catch blue drops, dodge brown ones and trash, and bump the filter into brown drops to clean them.</p>
+            <div class="difficulty-picker" role="group" aria-label="Difficulty">
+                <button class="difficulty-btn difficulty-easy" data-difficulty="easy" aria-pressed="false">Easy</button>
+                <button class="difficulty-btn difficulty-normal" data-difficulty="normal" aria-pressed="true">Normal</button>
+                <button class="difficulty-btn difficulty-hard" data-difficulty="hard" aria-pressed="false">Hard</button>
+            </div>
+            <p id="difficulty-summary" class="difficulty-summary"></p>
             <button id="start-btn">Start Game</button>
             <div class="leaderboard">
-                <h3>Top Bucket Rates</h3>
+                <h3>Top Bucket Rates <span class="board-difficulty"></span></h3>
                 <ol id="start-leaderboard-list"></ol>
             </div>
         </div>
@@ -107,7 +113,7 @@
                     <p id="final-rate" class="final-rate"></p>
                     <p id="final-details" class="final-details"></p>
                 </div>
-                <h3>Top Bucket Rates</h3>
+                <h3>Top Bucket Rates <span class="board-difficulty"></span></h3>
                 <ol id="game-over-leaderboard-list"></ol>
             </div>
             <button id="play-again-btn">Play Again</button>
@@ -143,7 +149,7 @@
                 </li>
                 <li>
                     <span class="instr-icon instr-icon-small">💧💧💧</span>
-                    <span>Lose all 3 lives and the game ends. Fill buckets fast: your score is buckets per minute.</span>
+                    <span>Lose all your lives and the game ends. Fill buckets fast: your score is buckets per minute.</span>
                 </li>
             </ul>
             <button id="instructions-close-btn">Got It</button>
@@ -185,7 +191,8 @@
     </section>
 
     <footer id="site-footer">
-        Created by <a href="https://woz.lol" target="_blank" rel="noopener">woz.lol</a> for <a href="https://www.charitywater.org/" target="_blank" rel="noopener">charity: water</a>
+        <span class="footer-donate">Clean water changes everything. <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener">Donate to charity: water</a></span>
+        <span class="footer-credit">Created by <a href="https://woz.lol" target="_blank" rel="noopener">woz.lol</a> for <a href="https://www.charitywater.org/" target="_blank" rel="noopener">charity: water</a></span>
     </footer>
 
     <!-- Confetti pieces get added here by script.js during celebrations -->
@@ -194,8 +201,8 @@
     <!-- A visible build marker, bumped on every change, so it's always
          obvious whether the browser is actually showing current code or
          a cached copy -- independent of judging any visual detail. -->
-    <p id="build-marker" style="position: fixed; bottom: 2px; right: 6px; font-size: 10px; color: rgba(0, 0, 0, 0.35); margin: 0; z-index: 9999; font-family: monospace; pointer-events: none;">build 2026-10-21 12:21:29</p>
+    <p id="build-marker" style="position: fixed; bottom: 2px; right: 6px; font-size: 10px; color: rgba(0, 0, 0, 0.35); margin: 0; z-index: 9999; font-family: monospace; pointer-events: none;">build 2026-10-27 20:02:26</p>
 
-    <script src="script.js?v=20261021100911"></script>
+    <script src="script.js?v=20261027200226"></script>
 </body>
 </html>

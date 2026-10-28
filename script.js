@@ -26,6 +26,9 @@ const playAgainBtn = document.getElementById('play-again-btn');
 const resetBtn = document.getElementById('reset-btn');
 const pauseBtn = document.getElementById('pause-btn');
 const pauseScreen = document.getElementById('pause-screen');
+const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+const difficultySummary = document.getElementById('difficulty-summary');
+const boardDifficultyLabels = document.querySelectorAll('.board-difficulty');
 const instructionsBtn = document.getElementById('instructions-btn');
 const instructionsCloseBtn = document.getElementById('instructions-close-btn');
 const instructionsScreen = document.getElementById('instructions-screen');
@@ -57,6 +60,73 @@ const riverBackgrounds = [
 // Game state variables
 let score = 0;
 let lives = 3;
+// --- Difficulty modes ----------------------------------------------------
+// Each mode changes the pace (drop speed, spawn rate, how fast they ramp up),
+// the rules (starting lives, how many hits the filter survives), and the mix
+// of drops (how much trash and how many brown drops show up).
+const DIFFICULTIES = {
+    easy: {
+        label: 'Easy',
+        summary: '5 lives, slower drops, less trash',
+        lives: 5,
+        startSpeed: 1.5,
+        startSpawnDelay: 1300,
+        minSpawnDelay: 650,
+        rampScale: 0.8,
+        dirtyShare: 0.18,
+        trashStart: 0.06,
+        trashGrowth: 0.008,
+        trashMaxExtra: 0.08,
+        filterHits: 4
+    },
+    normal: {
+        label: 'Normal',
+        summary: '3 lives, steady drops',
+        lives: 3,
+        startSpeed: 2,
+        startSpawnDelay: 1100,
+        minSpawnDelay: 500,
+        rampScale: 1,
+        dirtyShare: 0.25,
+        trashStart: 0.10,
+        trashGrowth: 0.012,
+        trashMaxExtra: 0.14,
+        filterHits: 3
+    },
+    hard: {
+        label: 'Hard',
+        summary: '2 lives, fast drops, lots of trash',
+        lives: 2,
+        startSpeed: 2.6,
+        startSpawnDelay: 850,
+        minSpawnDelay: 380,
+        rampScale: 1.25,
+        dirtyShare: 0.30,
+        trashStart: 0.14,
+        trashGrowth: 0.016,
+        trashMaxExtra: 0.16,
+        filterHits: 2
+    }
+};
+
+// The chosen mode is remembered between visits
+let currentDifficulty = localStorage.getItem('bucketMasterDifficulty');
+if (!DIFFICULTIES[currentDifficulty]) {
+    currentDifficulty = 'normal';
+}
+
+// Short messages shown when a run hits a bucket count, checked each time a
+// bucket is filled
+const MILESTONES = [
+    { buckets: 1, message: 'First bucket filled! Every drop counts.' },
+    { buckets: 3, message: '3 buckets! Clean water changes everything.' },
+    { buckets: 5, message: '5 buckets! Keep it flowing.' },
+    { buckets: 8, message: '8 buckets! You are a water hero.' },
+    { buckets: 12, message: '12 buckets! Unstoppable.' },
+    { buckets: 16, message: '16 buckets! A whole village would cheer.' },
+    { buckets: 20, message: '20 buckets! Legendary.' }
+];
+
 let level = 1;
 let dropSpeed = 2;
 let spawnDelay = 1100;
@@ -96,7 +166,7 @@ const MIN_RANKED_MS = 10000;
 
 // Bumped to v2 so switching to a top-5 board also clears out everyone's
 // old top-10 scores instead of needing to migrate them
-const LEADERBOARD_KEY = 'bucketMasterLeaderboardV2';
+const LEADERBOARD_BASE_KEY = 'bucketMasterLeaderboardV2';
 const LEADERBOARD_SIZE = 5;
 
 // Bucket velocity, tracked each tick so we can push the filter realistically
@@ -564,8 +634,10 @@ function moveBucketTo(targetX, targetY) {
     bucket.style.top = `${newY}px`;
 }
 
-// The bucket follows the mouse directly while it hovers over the game area
-gameArea.addEventListener('mousemove', function (event) {
+// The bucket follows the mouse anywhere on the page, not just over the game
+// area. If the cursor drifts out, the bucket keeps tracking it and just
+// stays pinned at the edge of the play area instead of freezing.
+document.addEventListener('mousemove', function (event) {
     const areaRect = gameArea.getBoundingClientRect();
     const targetX = event.clientX - areaRect.left - (bucket.offsetWidth / 2);
     const targetY = event.clientY - areaRect.top - (bucket.offsetHeight / 2);
@@ -596,14 +668,17 @@ function spawnDrop() {
     const roll = Math.random();
     let dropType = 'clean';
 
-    // Trash starts at 10% of drops and gains 1.2 points each level, capped
-    // at 24%. The extra comes out of the clean share; dirty stays at 25%.
-    const extraTrash = Math.min(0.14, (level - 1) * 0.012);
+    // The mix depends on the difficulty. Trash starts at its base share and
+    // grows a little each level up to a cap, dirty is a fixed share, and
+    // whatever is left over is clean water.
+    const settings = DIFFICULTIES[currentDifficulty];
+    const trashShare = settings.trashStart + Math.min(settings.trashMaxExtra, (level - 1) * settings.trashGrowth);
+    const cleanShare = 1 - trashShare - settings.dirtyShare;
 
-    if (roll < 0.65 - extraTrash) {
+    if (roll < cleanShare) {
         dropType = 'clean';
         cleanDropsSpawned = cleanDropsSpawned + 1;
-    } else if (roll < 0.9 - extraTrash) {
+    } else if (roll < cleanShare + settings.dirtyShare) {
         dropType = 'dirty';
     } else {
         dropType = 'obstacle';
@@ -897,7 +972,7 @@ function crackFilter() {
         filterElement.classList.remove('bumped');
     }, 200);
 
-    if (filterCracks >= 3) {
+    if (filterCracks >= DIFFICULTIES[currentDifficulty].filterHits) {
         explodeFilter();
     }
 }
@@ -1201,8 +1276,9 @@ function addScore(points) {
 
         // The speed and spawn-rate bumps shrink as the level climbs, so the
         // difficulty tapers off instead of stacking up into a sudden wall
-        dropSpeed = dropSpeed + Math.max(0.1, 0.3 - (level * 0.02));
-        spawnDelay = Math.max(500, spawnDelay - Math.max(15, 45 - (level * 3)));
+        const settings = DIFFICULTIES[currentDifficulty];
+        dropSpeed = dropSpeed + (Math.max(0.1, 0.3 - (level * 0.02)) * settings.rampScale);
+        spawnDelay = Math.max(settings.minSpawnDelay, spawnDelay - (Math.max(15, 45 - (level * 3)) * settings.rampScale));
         restartSpawnTimer();
         showNextRiver();
         launchConfetti(18);
@@ -1235,6 +1311,7 @@ function completeBucket() {
     bucketsCompleted = bucketsCompleted + 1;
     bucketsDisplay.textContent = bucketsCompleted;
     popStat(bucketsDisplay);
+    checkMilestone();
     bucketFillElement.style.height = '100%';
     addScore(10);
 
@@ -1314,13 +1391,21 @@ function computeBucketsPerMinute() {
     return minutes > 0 ? bucketsCompleted / minutes : 0;
 }
 
+// Each difficulty keeps its own board, so Hard runs aren't ranked against Easy
+// ones. Normal keeps the original key so existing scores stay put.
+function getLeaderboardKey() {
+    return currentDifficulty === 'normal'
+        ? LEADERBOARD_BASE_KEY
+        : `${LEADERBOARD_BASE_KEY}_${currentDifficulty}`;
+}
+
 function loadLeaderboard() {
-    const stored = localStorage.getItem(LEADERBOARD_KEY);
+    const stored = localStorage.getItem(getLeaderboardKey());
     return stored ? JSON.parse(stored) : [];
 }
 
 function saveLeaderboard(entries) {
-    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
+    localStorage.setItem(getLeaderboardKey(), JSON.stringify(entries));
 }
 
 // A run only gets a name prompt if it would actually crack the list
@@ -1368,6 +1453,71 @@ function renderLeaderboard(listElement, entries) {
         item.textContent = `${entry.name} — ${entry.bpm.toFixed(1)}/min (${entry.buckets} in ${formatTime(entry.timeSeconds * 1000)})`;
         listElement.appendChild(item);
     }
+}
+
+// --- Milestones ------------------------------------------------------------
+
+// Shows a short message at the top of the game area, then removes it
+function showMilestone(message) {
+    const toast = document.createElement('div');
+    toast.classList.add('milestone-toast');
+    toast.textContent = message;
+    gameArea.appendChild(toast);
+
+    setTimeout(function () {
+        toast.remove();
+    }, 2700);
+}
+
+// Called each time a bucket is filled: if the new total has a message, show it
+function checkMilestone() {
+    for (let i = 0; i < MILESTONES.length; i++) {
+        if (MILESTONES[i].buckets === bucketsCompleted) {
+            showMilestone(MILESTONES[i].message);
+        }
+    }
+}
+
+function clearMilestoneToasts() {
+    const toasts = gameArea.querySelectorAll('.milestone-toast');
+    for (let i = 0; i < toasts.length; i++) {
+        toasts[i].remove();
+    }
+}
+
+// --- Difficulty picker -------------------------------------------------------
+
+// Highlights the chosen mode, remembers it, and refreshes everything that
+// depends on it: the summary line, the lives preview, and the scoreboards
+function setDifficulty(name) {
+    currentDifficulty = name;
+    localStorage.setItem('bucketMasterDifficulty', name);
+
+    const settings = DIFFICULTIES[name];
+    for (let i = 0; i < difficultyButtons.length; i++) {
+        const isChosen = difficultyButtons[i].dataset.difficulty === name;
+        difficultyButtons[i].classList.toggle('chosen', isChosen);
+        difficultyButtons[i].setAttribute('aria-pressed', isChosen);
+    }
+
+    difficultySummary.textContent = settings.summary;
+
+    for (let i = 0; i < boardDifficultyLabels.length; i++) {
+        boardDifficultyLabels[i].textContent = `(${settings.label})`;
+    }
+
+    if (!gameRunning) {
+        lives = settings.lives;
+        livesDisplay.textContent = '💧'.repeat(lives);
+    }
+
+    renderLeaderboard(startLeaderboardList, loadLeaderboard());
+}
+
+for (let i = 0; i < difficultyButtons.length; i++) {
+    difficultyButtons[i].addEventListener('click', function () {
+        setDifficulty(difficultyButtons[i].dataset.difficulty);
+    });
 }
 
 // --- Main game loop ----------------------------------------------------
@@ -1433,11 +1583,12 @@ function clearDrops() {
 // --- Starting, resetting, and ending the game ---------------------------
 
 function startGame() {
+    const settings = DIFFICULTIES[currentDifficulty];
     score = 0;
-    lives = 3;
+    lives = settings.lives;
     level = 1;
-    dropSpeed = 2;
-    spawnDelay = 1100;
+    dropSpeed = settings.startSpeed;
+    spawnDelay = settings.startSpawnDelay;
     nextLevelScore = 10;
     cleanDropsSpawned = 0;
     cleanDropsCaught = 0;
@@ -1448,8 +1599,9 @@ function startGame() {
     gamePaused = false;
     elapsedMs = 0;
     lastDisplayedSecond = -1;
+    clearMilestoneToasts();
 
-    livesDisplay.textContent = '💧💧💧';
+    livesDisplay.textContent = '💧'.repeat(lives);
     levelDisplay.textContent = level;
     bucketsDisplay.textContent = bucketsCompleted;
     timerDisplay.textContent = '0:00';
@@ -1538,18 +1690,19 @@ function resetGame() {
     clearDrops();
 
     score = 0;
-    lives = 3;
+    lives = DIFFICULTIES[currentDifficulty].lives;
     level = 1;
     bucketFill = 0;
     bucketsCompleted = 0;
     gamePaused = false;
+    clearMilestoneToasts();
     elapsedMs = 0;
     lastDisplayedSecond = -1;
     bucketTransitioning = false;
     bucket.classList.remove('entering', 'exiting-success', 'exiting-contaminated', 'exploding');
     clearCrackVisuals();
     resetFilterState();
-    livesDisplay.textContent = '💧💧💧';
+    livesDisplay.textContent = '💧'.repeat(lives);
     levelDisplay.textContent = level;
     bucketsDisplay.textContent = bucketsCompleted;
     timerDisplay.textContent = '0:00';
@@ -1713,7 +1866,7 @@ saveNameBtn.addEventListener('click', function () {
 });
 
 // Show whatever scoreboard already exists as soon as the page loads
-renderLeaderboard(startLeaderboardList, loadLeaderboard());
+setDifficulty(currentDifficulty);
 
 // Give every button an elastic click-wobble, no matter where it's added
 document.addEventListener('click', function (event) {
