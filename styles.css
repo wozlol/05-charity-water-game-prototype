@@ -1171,6 +1171,7 @@ body.playing #stats-bar {
 button {
     position: relative;
     overflow: hidden;
+    font-family: 'Fredoka', Arial, Helvetica, sans-serif;
     font-size: 1rem;
     font-weight: bold;
     padding: 12px 26px;
