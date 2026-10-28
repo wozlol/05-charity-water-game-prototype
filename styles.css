@@ -1269,7 +1269,7 @@ button.click-wobble {
     opacity: 0;
 }
 
-/* Typewriter-style credit line at the very bottom of the page. The brand
+/* Credit and donation lines at the very bottom of the page. The brand
    name stays lowercase on purpose, as charity: water writes it. */
 #site-footer {
     display: flex;
@@ -1279,7 +1279,6 @@ button.click-wobble {
     z-index: 1;
     margin: 18px auto 14px;
     text-align: center;
-    font-family: 'Courier New', Courier, monospace;
     font-size: 0.85rem;
     color: #1a4d73;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
@@ -1531,20 +1530,26 @@ button.click-wobble {
 
 /* Brand font for reading text. charity: water's brand book names Proxima
    Nova (Avenir as its fallback), which isn't free to load on the web, so
-   Montserrat stands in. Titles, buttons, and big numbers keep Fredoka. */
+   Montserrat stands in. The titles, buttons, stats bar, and scoreboards
+   keep Fredoka. */
 :root {
     --brand-font: 'Proxima Nova', 'Montserrat', 'Avenir', Arial, sans-serif;
 }
 
 #tagline,
 .overlay p,
+.overlay h2:not(#game-over-title),
 #instruction-list,
-.leaderboard li,
-.stat-label,
-.final-details,
 .difficulty-summary,
-.milestone-toast {
+.milestone-toast,
+#name-input,
+#site-footer {
     font-family: var(--brand-font);
+}
+
+/* Anything inside a scoreboard panel stays Fredoka */
+.overlay .leaderboard p {
+    font-family: 'Fredoka', Arial, Helvetica, sans-serif;
 }
 
 /* Difficulty picker on the start screen: three small glossy pills, the
