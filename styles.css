@@ -1173,15 +1173,21 @@ button {
     overflow: hidden;
     font-family: 'Fredoka', Arial, Helvetica, sans-serif;
     font-size: 1rem;
-    font-weight: bold;
+    font-weight: 600;
+    letter-spacing: 0.3px;
     padding: 12px 26px;
     border: none;
     border-radius: 999px;
     background: linear-gradient(180deg, #8ef09a 0%, #4FCB53 45%, #2a9a35 100%);
     color: white;
+    /* A thin black outline (four 1px shadows) keeps the white text readable
+       on every glossy button color */
     text-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.4),
-        0 -1px 1px rgba(0, 0, 0, 0.35);
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        0 2px 3px rgba(0, 0, 0, 0.45);
     cursor: pointer;
     box-shadow:
         0 1px 0 rgba(255, 255, 255, 0.65) inset,
@@ -1450,12 +1456,10 @@ button.click-wobble {
     }
 }
 
-/* Yellow Instructions button, charity: water yellow with dark text so it
-   stays readable on the bright gradient */
+/* Yellow Instructions button in charity: water yellow. It uses the same
+   white text with a black outline as the other buttons. */
 #instructions-btn {
     background: linear-gradient(180deg, #fff1a0 0%, #FFC907 45%, #d19a00 100%);
-    color: #5a4300;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
     box-shadow:
         0 1px 0 rgba(255, 255, 255, 0.75) inset,
         0 -7px 11px rgba(0, 0, 0, 0.2) inset,
